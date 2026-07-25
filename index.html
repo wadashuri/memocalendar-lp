@@ -239,115 +239,6 @@
         margin: 0 0 2.75rem;
         max-width: 38rem;
       }
-      .features {
-        display: grid;
-        gap: 1rem;
-        grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-      }
-      .card {
-        background: var(--panel);
-        border: 1px solid var(--rule);
-        border-radius: 14px;
-        padding: 1.4rem 1.5rem;
-      }
-      .card h3 {
-        margin: 0 0 0.4rem;
-        font-size: 1.05rem;
-      }
-      .card p {
-        margin: 0;
-        color: var(--muted);
-        font-size: 0.95rem;
-        line-height: 1.75;
-      }
-
-      /* ---- steps ---- */
-      .steps {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-        display: grid;
-        gap: 1.5rem;
-        grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-        counter-reset: step;
-      }
-      .steps li {
-        display: flex;
-        gap: 1rem;
-        align-items: flex-start;
-      }
-      .num {
-        flex: 0 0 auto;
-        width: 2.1rem;
-        height: 2.1rem;
-        border-radius: 50%;
-        background: var(--accent);
-        color: var(--bg);
-        display: grid;
-        place-items: center;
-        font-weight: 700;
-        font-size: 0.95rem;
-        margin-top: 0.2rem;
-      }
-      .steps h3 {
-        margin: 0 0 0.25rem;
-        font-size: 1.05rem;
-      }
-      .steps p {
-        margin: 0;
-        color: var(--muted);
-        font-size: 0.95rem;
-        line-height: 1.75;
-      }
-
-      /* ---- editor showcase ---- */
-      .editor-section {
-        background: var(--panel);
-        border-top: 1px solid var(--rule);
-        border-bottom: 1px solid var(--rule);
-      }
-      .split {
-        display: grid;
-        gap: 2.5rem;
-        align-items: center;
-      }
-      @media (min-width: 52rem) {
-        .split {
-          grid-template-columns: 1.1fr 0.9fr;
-          gap: 3.5rem;
-        }
-      }
-      .split-shot {
-        margin: 0;
-        justify-self: center;
-      }
-      .split-shot img {
-        width: min(300px, 70vw);
-        aspect-ratio: 1320 / 2706;
-        object-fit: cover;
-        object-position: bottom;
-        border-radius: 28px;
-        border: 1px solid var(--rule);
-        box-shadow: var(--shadow);
-        background: var(--bg);
-      }
-      .chips {
-        list-style: none;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        margin: 1.5rem 0 0;
-        padding: 0;
-      }
-      .chips li {
-        padding: 0.35rem 0.85rem;
-        border-radius: 999px;
-        background: var(--bg);
-        border: 1px solid var(--rule);
-        font-size: 0.88rem;
-        color: var(--muted);
-      }
-
       /* ---- privacy highlight ---- */
       .privacy {
         background: var(--panel);
@@ -413,153 +304,47 @@
       画面全体を小さく出すと中の文字が読めないので、その項目で見せたい部分だけを
       切り出して大きく出す。倍率と位置は各カードの --zoom / --y で持つ。
     -->
+    <!--
+      画面全体を小さく出すと中の文字が読めないので、その項目で見せたい部分だけを
+      切り出して大きく出す。位置は各カードの --y で持つ。
+    -->
     <section class="showcase" id="showcase">
       <div class="wrap">
       <div class="row">
         <div class="row-shot" style="--src: url('screenshots/01-calendar.png'); --y: 24%"></div>
         <div class="row-text">
-          <h3>ひと月ぶんを、ひと目で</h3>
-          <p>その日に書いたことが、カレンダーにそのまま並びます。縦にスクロールすれば、前後の月へ続けて見られます。</p>
-        </div>
-      </div>
-      <div class="row">
-        <div class="row-shot" style="--src: url('screenshots/02-day-sheet.png'); --y: 66%"></div>
-        <div class="row-text">
-          <h3>日付をタップするだけ</h3>
-          <p>その日のメモが下から出てきます。カレンダーは見えたままなので、別の日にもすぐ移れます。</p>
+          <h3>画面はこれだけ。だから迷わない</h3>
+          <p>並んでいるのはカレンダーと本文だけです。メニューをたどる必要も、使い方を覚える必要もありません。日付を押せば、もう書けます。</p>
         </div>
       </div>
       <div class="row">
         <div class="row-shot" style="--src: url('screenshots/03-richtext.png'); --y: 18%"></div>
         <div class="row-text">
-          <h3>書式が使える</h3>
-          <p>見出しやチェックリスト、引用、リンクが使えます。買い物リストにも、打ち合わせのメモにも、日記にも。</p>
+          <h3>メモ機能が充実</h3>
+          <p>見出しで区切る、チェックリストで持ち物を並べる、引用で相手の言葉を残す。日付ごとのアプリで、ここまで書けるものはあまりありません。</p>
         </div>
       </div>
       <div class="row">
         <div class="row-shot" style="--src: url('screenshots/04-schedule.png'); --y: 16%"></div>
         <div class="row-text">
-          <h3>予定としても使えます</h3>
-          <p>何日かにまたがるメモも、毎日・毎週・毎月・毎年の繰り返しも作れます。日付の設定は奥にしまってあるので、ふだんは目に入りません。</p>
+          <h3>予定も簡単に管理</h3>
+          <p>何日かにまたがる予定も、毎日・毎週・毎月・毎年の繰り返しも数タップで作れます。毎週なら曜日も選べます。</p>
         </div>
       </div>
       <div class="row">
         <div class="row-shot" style="--src: url('screenshots/05-settings.png'); --y: 15%"></div>
         <div class="row-text">
-          <h3>色で分けて、持ち出せる</h3>
-          <p>カテゴリを付ければ、色でひと目で見分けられます。バックアップからは書式もカテゴリもそのまま戻せます。</p>
+          <h3>カテゴリで色分け</h3>
+          <p>仕事・個人・予定など、メモにカテゴリを付けるとカレンダーに色の点が並びます。名前も色も自由に変えられ、いくつでも増やせます。</p>
         </div>
       </div>
+      <div class="row">
+        <div class="row-shot" style="--src: url('screenshots/05-settings.png'); --y: 72%"></div>
+        <div class="row-text">
+          <h3>バックアップで持ち出せる</h3>
+          <p>書き出したファイルを読み込めば、書式もカテゴリもそのまま戻ります。機種変更や再インストールのときも安心です。.ics 形式を選べば、他のカレンダーアプリともやりとりできます。</p>
+        </div>
       </div>
-    </section>
-
-    <section class="wrap steps-section">
-      <h2>使い方は3つだけ</h2>
-      <p class="section-lead">覚えることを増やさないために、操作を絞っています。</p>
-      <ol class="steps">
-        <li>
-          <span class="num">1</span>
-          <div>
-            <h3>日付をタップ</h3>
-            <p>その日のメモ一覧が開きます。何件あっても同じ場所から始まります。</p>
-          </div>
-        </li>
-        <li>
-          <span class="num">2</span>
-          <div>
-            <h3>書く</h3>
-            <p>入力が止まると自動で保存されます。保存ボタンを探す必要はありません。</p>
-          </div>
-        </li>
-        <li>
-          <span class="num">3</span>
-          <div>
-            <h3>必要なら日付を足す</h3>
-            <p>期間や繰り返しは詳細設定にまとめてあります。ふだんは意識せず、書くことだけに集中できます。</p>
-          </div>
-        </li>
-      </ol>
-    </section>
-
-    <section class="editor-section">
-      <div class="wrap split">
-        <div>
-          <h2>カレンダーなのに、<br />ちゃんと書ける。</h2>
-          <p class="section-lead">
-            カレンダーに書けるアプリは、たいてい一行のタイトルや簡単なメモしか書けません。
-            このアプリの
-            本文欄は<strong>リッチテキスト</strong>です。見出しで区切り、チェックリストで持ち物を
-            並べ、引用で相手の言葉をそのまま残せます。買い物リストも、打ち合わせのメモも、
-            日記も、同じ場所にまとめられます。
-          </p>
-          <ul class="chips">
-            <li>見出し</li>
-            <li>太字・斜体・下線</li>
-            <li>箇条書き</li>
-            <li>番号付き</li>
-            <li>チェックリスト</li>
-            <li>引用</li>
-            <li>リンク</li>
-          </ul>
-        </div>
-        <figure class="split-shot">
-          <img
-            src="screenshots/03-richtext.png"
-            alt="見出し・チェックリスト・引用を使ったメモと、書式のツールバー"
-            loading="lazy"
-          />
-        </figure>
-      </div>
-    </section>
-
-    <section class="wrap">
-      <h2>できること</h2>
-      <p class="section-lead">
-        予定管理アプリほど大げさではなく、メモ帳より日付に強い。ちょうどその間を狙っています。
-      </p>
-      <div class="features">
-        <div class="card">
-          <h3>タップして、書くだけ</h3>
-          <p>
-            日付をタップするとその日のメモが開きます。入力が止まると自動で保存されるので、
-            保存ボタンはありません。
-          </p>
-        </div>
-        <div class="card">
-          <h3>書式が使える</h3>
-          <p>
-            見出し・太字・箇条書き・チェックリスト・引用・リンクを用意しています。
-            買い物リストにも、打ち合わせのメモにも。
-          </p>
-        </div>
-        <div class="card">
-          <h3>予定にも使える</h3>
-          <p>
-            1日に何件でも書けます。何日かにまたがるメモや、毎日・毎週・毎月・毎年の
-            繰り返しも作れます。毎週なら曜日も選べます。
-          </p>
-        </div>
-        <div class="card">
-          <h3>色で見分けられる</h3>
-          <p>
-            カテゴリを付けると、カレンダーに色の点が並びます。カテゴリは自由に追加・
-            改名・色変更ができます。
-          </p>
-        </div>
-        <div class="card">
-          <h3>持ち出せる</h3>
-          <p>
-            機種変更や再インストールに備えてバックアップを書き出せます。書式もカテゴリも
-            そのまま戻せます。
-          </p>
-        </div>
-        <div class="card">
-          <h3>他のカレンダーとも</h3>
-          <p>
-            .ics 形式で書き出し・取り込みができます。他のカレンダーアプリから乗り換えるときにも、
-            他のアプリへ移るときにも使えます。
-          </p>
-        </div>
       </div>
     </section>
 
@@ -586,12 +371,11 @@
     </section>
 
     <section class="wrap">
-      <h2>バックアップと、機種変更</h2>
+      <h2>同期について</h2>
       <p class="section-lead">
-        設定画面からバックアップを書き出せます。書式もカテゴリもそのまま戻せるので、
-        機種変更やアプリの再インストールのときは、このファイルを新しい端末で読み込んでください。
-        なお通信しないアプリなので、<strong>端末をまたいだ自動の同期はできません</strong>。
-        複数の端末で同じメモを開きたい方には向きません。
+        通信しないアプリなので、<strong>端末をまたいだ自動の同期はできません</strong>。
+        機種変更のときは、設定画面からバックアップを書き出して、新しい端末で読み込んでください。
+        iPhone と iPad で同じメモを開きたい、といった使い方には向きません。
       </p>
     </section>
 
@@ -609,7 +393,7 @@
 
       // --- スクロールで現れる ---
       const revealTargets = document.querySelectorAll(
-        'section h2, .section-lead, .card, .steps li, .chips, .split-shot, .privacy ul, footer, .row-shot, .row-text',
+        'section h2, .section-lead, .privacy ul, footer, .row-shot, .row-text',
       );
       revealTargets.forEach((el) => el.classList.add('reveal'));
       if (still || !('IntersectionObserver' in window)) {
