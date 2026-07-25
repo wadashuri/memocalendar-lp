@@ -179,6 +179,13 @@
         border: 1px solid var(--rule);
         box-shadow: var(--shadow);
       }
+      /*
+        一覧が短い画面(カテゴリ・設定)は、4/5 のままだと下1/3が余白になる。
+        カードのほうを詰めて、中身と枠の間を他のカードと揃える。
+      */
+      .row-shot.is-short {
+        aspect-ratio: 1 / 1;
+      }
       @media (min-width: 52rem) {
         .row-shot {
           max-width: 30rem;
@@ -302,10 +309,6 @@
     -->
     <!--
       画面全体を小さく出すと中の文字が読めないので、その項目で見せたい部分だけを
-      切り出して大きく出す。倍率と位置は各カードの --zoom / --y で持つ。
-    -->
-    <!--
-      画面全体を小さく出すと中の文字が読めないので、その項目で見せたい部分だけを
       切り出して大きく出す。位置は各カードの --y で持つ。
     -->
     <section class="showcase" id="showcase">
@@ -332,14 +335,14 @@
         </div>
       </div>
       <div class="row">
-        <div class="row-shot" style="--src: url('screenshots/05-settings.png'); --y: 15%"></div>
+        <div class="row-shot is-short" style="--src: url('screenshots/06-categories.png'); --y: 10%"></div>
         <div class="row-text">
           <h3>カテゴリで色分け</h3>
           <p>仕事・個人・予定など、メモにカテゴリを付けるとカレンダーに色の点が並びます。名前も色も自由に変えられ、いくつでも増やせます。</p>
         </div>
       </div>
       <div class="row">
-        <div class="row-shot" style="--src: url('screenshots/05-settings.png'); --y: 72%"></div>
+        <div class="row-shot is-short" style="--src: url('screenshots/05-settings.png'); --y: 10%"></div>
         <div class="row-text">
           <h3>バックアップで持ち出せる</h3>
           <p>書き出したファイルを読み込めば、書式もカテゴリもそのまま戻ります。機種変更や再インストールのときも安心です。.ics 形式を選べば、他のカレンダーアプリともやりとりできます。</p>
