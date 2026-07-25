@@ -99,7 +99,7 @@
 
       /* ---- hero ---- */
       header {
-        padding: 4rem 0 3rem;
+        padding: 5rem 0 4rem;
         background: linear-gradient(180deg, var(--accent-soft), transparent);
       }
       .hero {
@@ -140,7 +140,7 @@
 
       /* ---- showcase(スクロールで中身が切り替わる1台) ---- */
       .showcase {
-        padding: 2rem 0 4rem;
+        padding: 3rem 0 6rem;
       }
       .showcase-inner {
         max-width: 68rem;
@@ -158,11 +158,19 @@
         .phone-col {
           position: sticky;
           /* 端末を画面に留めたまま、右の説明だけを流す。 */
-          top: 5.5rem;
+          top: 4.5rem;
+        }
+        .phone {
+          width: min(420px, 44vh);
         }
       }
+      /*
+        端末はできるだけ大きく出す。中身は 1320px 幅のスクリーンショットなので、
+        小さいと画面の文字が読めない。高さが画面から溢れないよう vh でも抑える
+        (画面の縦横比 1320:2706 から、幅 = 高さ × 0.49)。
+      */
       .phone {
-        width: 250px;
+        width: min(300px, 74vw);
         margin: 0 auto;
         padding: 10px;
         border-radius: 42px;
@@ -285,16 +293,21 @@
 
       /* ---- sections ---- */
       section {
-        padding: 3.5rem 0;
+        padding: 6rem 0;
+      }
+      @media (max-width: 40rem) {
+        section {
+          padding: 4rem 0;
+        }
       }
       h2 {
         font-size: clamp(1.35rem, 3.4vw, 1.8rem);
         letter-spacing: -0.01em;
-        margin: 0 0 0.5rem;
+        margin: 0 0 0.75rem;
       }
       .section-lead {
         color: var(--muted);
-        margin: 0 0 2rem;
+        margin: 0 0 2.75rem;
         max-width: 38rem;
       }
       .features {
@@ -380,7 +393,7 @@
         justify-self: center;
       }
       .split-shot img {
-        width: 240px;
+        width: min(300px, 70vw);
         aspect-ratio: 1320 / 2706;
         object-fit: cover;
         object-position: bottom;
@@ -426,7 +439,7 @@
 
       /* ---- footer ---- */
       footer {
-        padding: 2.5rem 0 4rem;
+        padding: 3.5rem 0 5rem;
         color: var(--muted);
         font-size: 0.9rem;
       }
@@ -487,11 +500,11 @@
         <ol class="captions">
           <li data-caption="0" class="is-active">
             <h3>ひと月ぶんを、ひと目で</h3>
-            <p>その日に何を書いたかがカレンダーの上に出ます。縦にスクロールすれば前後の月へそのまま続きます。</p>
+            <p>その日に何を書いたかが、カレンダーにそのまま並びます。縦にスクロールすれば前後の月へ続きます。</p>
           </li>
           <li data-caption="1">
             <h3>日付をタップするだけ</h3>
-            <p>その日のメモが下から出ます。カレンダーは見えたままなので、別の日を選び直すのもすぐです。</p>
+            <p>その日のメモが下から出ます。カレンダーは見えたままなので、別の日にもすぐ移れます。</p>
           </li>
           <li data-caption="2">
             <h3>書式が使える</h3>
@@ -499,11 +512,11 @@
           </li>
           <li data-caption="3">
             <h3>予定にもなる</h3>
-            <p>何日かにまたがるメモも、毎日・毎週・毎月・毎年の繰り返しも。日付の設定は奥にしまってあります。</p>
+            <p>何日かにまたがるメモも、毎日・毎週・毎月・毎年の繰り返しも作れます。日付の設定は奥にしまってあるので、ふだんは目に入りません。</p>
           </li>
           <li data-caption="4">
             <h3>色で分けて、持ち出せる</h3>
-            <p>カテゴリの色でひと目で見分けられます。バックアップは書式もカテゴリもそのまま戻せます。</p>
+            <p>カテゴリを付ければ、色でひと目で見分けられます。バックアップからは書式もカテゴリもそのまま戻せます。</p>
           </li>
         </ol>
       </div>
@@ -511,7 +524,7 @@
 
     <section class="wrap steps-section">
       <h2>使い方は3つだけ</h2>
-      <p class="section-lead">覚えることを増やさないために、動線を絞っています。</p>
+      <p class="section-lead">覚えることを増やさないために、操作を絞っています。</p>
       <ol class="steps">
         <li>
           <span class="num">1</span>
@@ -531,7 +544,7 @@
           <span class="num">3</span>
           <div>
             <h3>必要なら日付を足す</h3>
-            <p>期間や繰り返しは詳細設定の中。ふだんは意識せずに、書くことだけに集中できます。</p>
+            <p>期間や繰り返しは詳細設定にまとめてあります。ふだんは意識せず、書くことだけに集中できます。</p>
           </div>
         </li>
       </ol>
@@ -542,10 +555,10 @@
         <div>
           <h2>カレンダーなのに、<br />ちゃんと書ける。</h2>
           <p class="section-lead">
-            日付ごとのアプリは、たいてい一行のタイトルしか置けません。このアプリの本文は
-            <strong>リッチテキストエディタ</strong>です。見出しで区切り、チェックリストで
-            持ち物を並べ、引用で相手の言葉をそのまま残す。買い物リストも、打ち合わせのメモも、
-            日記も、同じ場所に書けます。
+            カレンダーに書けるアプリは、たいてい一行のタイトルしか置けません。このアプリなら
+            <strong>リッチテキストで書けます</strong>。見出しで区切り、チェックリストで持ち物を
+            並べ、引用で相手の言葉をそのまま残す。買い物リストも、打ち合わせのメモも、日記も、
+            同じ場所に書けます。
           </p>
           <ul class="chips">
             <li>見出し</li>
@@ -570,7 +583,7 @@
     <section class="wrap">
       <h2>できること</h2>
       <p class="section-lead">
-        予定管理アプリほど大げさではなく、メモ帳よりは日付に強い。その間を狙っています。
+        予定管理アプリほど大げさではなく、メモ帳より日付に強い。ちょうどその間を狙っています。
       </p>
       <div class="features">
         <div class="card">
@@ -591,7 +604,7 @@
           <h3>予定にも使える</h3>
           <p>
             1日に何件でも置けます。何日かにまたがるメモや、毎日・毎週・毎月・毎年の
-            繰り返しも。毎週なら曜日も選べます。
+            繰り返しも作れます。毎週なら曜日も選べます。
           </p>
         </div>
         <div class="card">
@@ -611,8 +624,8 @@
         <div class="card">
           <h3>他のカレンダーとも</h3>
           <p>
-            .ics 形式で書き出し・取り込みができます。他のカレンダーアプリからの
-            乗り換えにも、そこへの移行にも。
+            .ics 形式で書き出し・取り込みができます。他のカレンダーアプリから乗り換えるときにも、
+            他のアプリへ移るときにも。
           </p>
         </div>
       </div>
@@ -644,8 +657,8 @@
       <h2>ひとつだけ、できないこと</h2>
       <p class="section-lead">
         通信しないので、<strong>端末をまたいだ同期はできません</strong>。
-        機種変更のときは、設定画面からバックアップを書き出して新しい端末で読み込んでください。
-        同期が要る方には向きません。
+        機種変更のときは、設定画面からバックアップを書き出して、新しい端末で読み込んでください。
+        複数の端末で同じメモを見たい方には向きません。
       </p>
     </section>
 
