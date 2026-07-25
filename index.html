@@ -149,61 +149,30 @@
         display: grid;
         gap: 2rem;
       }
-      @media (min-width: 56rem) {
-        .showcase-inner {
-          grid-template-columns: 0.9fr 1.1fr;
-          gap: 4rem;
-          align-items: start;
-        }
-        .phone-col {
-          position: sticky;
-          /* 端末を画面に留めたまま、右の説明だけを流す。 */
-          top: 4.5rem;
-        }
-        .phone {
-          width: min(420px, 44vh);
-        }
-      }
-      /*
-        端末はできるだけ大きく出す。中身は 1320px 幅のスクリーンショットなので、
-        小さいと画面の文字が読めない。高さが画面から溢れないよう vh でも抑える
-        (画面の縦横比 1320:2706 から、幅 = 高さ × 0.49)。
-      */
-      .phone {
-        width: min(300px, 74vw);
-        margin: 0 auto;
-        padding: 10px;
-        border-radius: 42px;
-        background: linear-gradient(160deg, #d7dde6, #f4f6f9);
+      .detail-stack {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        border-radius: 20px;
+        overflow: hidden;
+        background: var(--panel);
+        border: 1px solid var(--rule);
         box-shadow: var(--shadow);
       }
-      @media (prefers-color-scheme: dark) {
-        .phone {
-          background: linear-gradient(160deg, #2a2f38, #1a1e24);
-        }
-      }
-      .phone-screen {
-        position: relative;
-        border-radius: 32px;
-        overflow: hidden;
-        background: var(--bg);
-        /* スクリーンショットは 1320×2868。上端のステータスバーは切って出す。 */
-        aspect-ratio: 1320 / 2706;
-      }
-      .shot-img {
+      .detail {
         position: absolute;
         inset: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        object-position: bottom;
+        background-image: var(--src);
+        background-repeat: no-repeat;
+        background-size: var(--zoom) auto;
+        background-position: 50% var(--y);
         opacity: 0;
-        transform: scale(1.015);
+        transform: scale(1.02);
         transition:
           opacity 0.5s ease,
           transform 0.6s ease;
       }
-      .shot-img.is-active {
+      .detail.is-active {
         opacity: 1;
         transform: none;
       }
@@ -230,6 +199,18 @@
         list-style: none;
         margin: 0;
         padding: 0;
+      }
+      @media (min-width: 56rem) {
+        .showcase-inner {
+          grid-template-columns: 0.9fr 1.1fr;
+          gap: 4rem;
+          align-items: start;
+        }
+        /* 端末を画面に留めたまま、右の説明だけを流す。 */
+        .phone-col {
+          position: sticky;
+          top: 4.5rem;
+        }
       }
       .captions li {
         padding: 1.6rem 0;
@@ -483,14 +464,36 @@
     <section class="showcase" id="showcase">
       <div class="showcase-inner">
         <div class="phone-col">
-          <div class="phone">
-            <div class="phone-screen">
-              <img data-shot="0" class="shot-img is-active" src="screenshots/01-calendar.png" alt="縦にスクロールするカレンダー" />
-              <img data-shot="1" class="shot-img" src="screenshots/02-day-sheet.png" alt="日付をタップすると下から出るメモ一覧" loading="lazy" />
-              <img data-shot="2" class="shot-img" src="screenshots/03-richtext.png" alt="見出し・チェックリスト・引用を使った本文編集" loading="lazy" />
-              <img data-shot="3" class="shot-img" src="screenshots/04-schedule.png" alt="期間と繰り返しを決める詳細設定" loading="lazy" />
-              <img data-shot="4" class="shot-img" src="screenshots/05-settings.png" alt="カテゴリ管理とデータ管理" loading="lazy" />
-            </div>
+          <!--
+            画面全体を小さく出すと、中の文字が実寸の3割まで縮んで読めない。
+            見せたい部分だけを拡大して出す(拡大率と位置は data 属性で持つ)。
+          -->
+          <div class="detail-stack">
+            <div
+              class="detail is-active"
+              data-shot="0"
+              style="--src: url('screenshots/01-calendar.png'); --zoom: 150%; --y: 34%"
+            ></div>
+            <div
+              class="detail"
+              data-shot="1"
+              style="--src: url('screenshots/02-day-sheet.png'); --zoom: 175%; --y: 72%"
+            ></div>
+            <div
+              class="detail"
+              data-shot="2"
+              style="--src: url('screenshots/03-richtext.png'); --zoom: 185%; --y: 10%"
+            ></div>
+            <div
+              class="detail"
+              data-shot="3"
+              style="--src: url('screenshots/04-schedule.png'); --zoom: 165%; --y: 20%"
+            ></div>
+            <div
+              class="detail"
+              data-shot="4"
+              style="--src: url('screenshots/05-settings.png'); --zoom: 165%; --y: 52%"
+            ></div>
           </div>
           <div class="dots" aria-hidden="true">
             <span class="dot is-active"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
@@ -696,7 +699,7 @@
       }
 
       // --- 端末の中身を、読んでいる説明に合わせて切り替える ---
-      const shots = [...document.querySelectorAll('.shot-img')];
+      const shots = [...document.querySelectorAll('.detail')];
       const captions = [...document.querySelectorAll('.captions li')];
       const dots = [...document.querySelectorAll('.dot')];
 
@@ -706,20 +709,36 @@
         dots.forEach((el, i) => el.classList.toggle('is-active', i === index));
       }
 
-      if (captions.length > 0 && 'IntersectionObserver' in window) {
-        // 画面の中央に一番近い説明を「読んでいる」とみなす。
-        const spy = new IntersectionObserver(
-          (entries) => {
-            let best = null;
-            entries.forEach((entry) => {
-              if (!entry.isIntersecting) return;
-              if (!best || entry.intersectionRatio > best.intersectionRatio) best = entry;
-            });
-            if (best) showShot(Number(best.target.dataset.caption));
+      // 画面の中央に一番近い説明を「読んでいる」とみなす。IntersectionObserver で
+      // 帯を作る方法だと、速くスクロールしたときに帯を跨いだ通知が来ず取り残される。
+      let queued = false;
+      function syncShot() {
+        queued = false;
+        const middle = window.innerHeight / 2;
+        let nearest = 0;
+        let shortest = Infinity;
+        captions.forEach((el, i) => {
+          const box = el.getBoundingClientRect();
+          const distance = Math.abs(box.top + box.height / 2 - middle);
+          if (distance < shortest) {
+            shortest = distance;
+            nearest = i;
+          }
+        });
+        showShot(nearest);
+      }
+      if (captions.length > 0) {
+        window.addEventListener(
+          'scroll',
+          () => {
+            if (queued) return;
+            queued = true;
+            requestAnimationFrame(syncShot);
           },
-          { rootMargin: '-45% 0px -45% 0px', threshold: [0, 0.5, 1] },
+          { passive: true },
         );
-        captions.forEach((el) => spy.observe(el));
+        window.addEventListener('resize', syncShot);
+        syncShot();
       }
 
       // 横に並ぶ狭い画面では説明が同時に見えるので、点をタップして選べるようにする。
