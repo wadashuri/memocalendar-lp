@@ -146,7 +146,7 @@
         display: grid;
         gap: 1.75rem;
         align-items: center;
-        padding: 3.5rem 0;
+        padding: 4.5rem 0;
       }
       @media (min-width: 52rem) {
         .row {
@@ -167,14 +167,15 @@
         background-color: var(--panel);
         background-image: var(--src);
         background-repeat: no-repeat;
-        background-size: var(--zoom) auto;
-        background-position: var(--x) var(--y);
+        /* 横は切らない(幅ぴったり)。縦だけ --y でずらして、見せたい範囲を出す。 */
+        background-size: 100% auto;
+        background-position: 50% var(--y);
         border: 1px solid var(--rule);
         box-shadow: var(--shadow);
       }
       @media (min-width: 52rem) {
         .row-shot {
-          max-width: 26rem;
+          max-width: 30rem;
           justify-self: center;
         }
       }
@@ -215,7 +216,7 @@
 
       /* ---- sections ---- */
       section {
-        padding: 7.5rem 0;
+        padding: 9rem 0;
       }
       @media (max-width: 40rem) {
         section {
@@ -409,35 +410,35 @@
     <section class="showcase" id="showcase">
       <div class="wrap">
       <div class="row">
-        <div class="row-shot" style="--src: url('screenshots/01-calendar.png'); --zoom: 150%; --x: 50%; --y: 21%"></div>
+        <div class="row-shot" style="--src: url('screenshots/01-calendar.png'); --y: 24%"></div>
         <div class="row-text">
           <h3>ひと月ぶんを、ひと目で</h3>
-          <p>その日に書いたことが、カレンダーにそのまま並びます。縦にスクロールすれば、前後の月へそのまま続きます。</p>
+          <p>その日に書いたことが、カレンダーにそのまま並びます。縦にスクロールすれば、前後の月へ続けて見られます。</p>
         </div>
       </div>
       <div class="row">
-        <div class="row-shot" style="--src: url('screenshots/02-day-sheet.png'); --zoom: 125%; --x: 10%; --y: 71%"></div>
+        <div class="row-shot" style="--src: url('screenshots/02-day-sheet.png'); --y: 66%"></div>
         <div class="row-text">
           <h3>日付をタップするだけ</h3>
           <p>その日のメモが下から出てきます。カレンダーは見えたままなので、別の日にもすぐ移れます。</p>
         </div>
       </div>
       <div class="row">
-        <div class="row-shot" style="--src: url('screenshots/03-richtext.png'); --zoom: 130%; --x: 6%; --y: 3%"></div>
+        <div class="row-shot" style="--src: url('screenshots/03-richtext.png'); --y: 12%"></div>
         <div class="row-text">
           <h3>書式が使える</h3>
-          <p>見出し・チェックリスト・引用・リンクが使えます。買い物リストにも、打ち合わせのメモにも、日記にも。</p>
+          <p>見出しやチェックリスト、引用、リンクが使えます。買い物リストにも、打ち合わせのメモにも、日記にも。</p>
         </div>
       </div>
       <div class="row">
-        <div class="row-shot" style="--src: url('screenshots/04-schedule.png'); --zoom: 120%; --x: 50%; --y: 13%"></div>
+        <div class="row-shot" style="--src: url('screenshots/04-schedule.png'); --y: 12%"></div>
         <div class="row-text">
           <h3>予定にもなる</h3>
           <p>何日かにまたがるメモも、毎日・毎週・毎月・毎年の繰り返しも作れます。日付の設定は奥にしまってあるので、ふだんは目に入りません。</p>
         </div>
       </div>
       <div class="row">
-        <div class="row-shot" style="--src: url('screenshots/05-settings.png'); --zoom: 120%; --x: 50%; --y: 13%"></div>
+        <div class="row-shot" style="--src: url('screenshots/05-settings.png'); --y: 9%"></div>
         <div class="row-text">
           <h3>色で分けて、持ち出せる</h3>
           <p>カテゴリを付ければ、色でひと目で見分けられます。バックアップからは書式もカテゴリもそのまま戻せます。</p>
@@ -479,10 +480,10 @@
         <div>
           <h2>カレンダーなのに、<br />ちゃんと書ける。</h2>
           <p class="section-lead">
-            カレンダーに書けるアプリは、たいてい一行のタイトルしか置けません。このアプリなら
-            <strong>リッチテキストで書けます</strong>。見出しで区切り、チェックリストで持ち物を
-            並べ、引用で相手の言葉をそのまま残す。買い物リストも、打ち合わせのメモも、日記も、
-            同じ場所に書けます。
+            カレンダーに書けるアプリは、たいてい一行のタイトルしか置けません。このアプリの
+            本文欄は<strong>リッチテキスト</strong>です。見出しで区切り、チェックリストで持ち物を
+            並べ、引用で相手の言葉をそのまま残せます。買い物リストも、打ち合わせのメモも、
+            日記も、同じ場所にまとめられます。
           </p>
           <ul class="chips">
             <li>見出し</li>
@@ -520,8 +521,8 @@
         <div class="card">
           <h3>書式が使える</h3>
           <p>
-            見出し・太字・箇条書き・チェックリスト・引用・リンク。買い物リストにも、
-            打ち合わせのメモにも。
+            見出し・太字・箇条書き・チェックリスト・引用・リンクを用意しています。
+            買い物リストにも、打ち合わせのメモにも。
           </p>
         </div>
         <div class="card">
@@ -549,7 +550,7 @@
           <h3>他のカレンダーとも</h3>
           <p>
             .ics 形式で書き出し・取り込みができます。他のカレンダーアプリから乗り換えるときにも、
-            他のアプリへ移るときにも。
+            他のアプリへ移るときにも使えます。
           </p>
         </div>
       </div>
