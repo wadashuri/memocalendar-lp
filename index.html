@@ -138,52 +138,149 @@
         font-size: 0.9rem;
       }
 
-      /* ---- screenshot strip ---- */
-      .shots {
-        display: flex;
-        align-items: flex-start;
-        gap: 1.25rem;
-        overflow-x: auto;
-        padding: 0.5rem 1.25rem 2.5rem;
-        scroll-snap-type: x mandatory;
-        justify-content: flex-start;
+      /* ---- showcase(スクロールで中身が切り替わる1台) ---- */
+      .showcase {
+        padding: 2rem 0 4rem;
       }
-      .shots figure {
-        margin: 0;
+      .showcase-inner {
+        max-width: 68rem;
+        margin: 0 auto;
+        padding: 0 1.25rem;
+        display: grid;
+        gap: 2rem;
       }
-      @media (min-width: 60rem) {
-        .shots {
-          justify-content: center;
-          overflow-x: visible;
+      @media (min-width: 56rem) {
+        .showcase-inner {
+          grid-template-columns: 0.9fr 1.1fr;
+          gap: 4rem;
+          align-items: start;
+        }
+        .phone-col {
+          position: sticky;
+          /* 端末を画面に留めたまま、右の説明だけを流す。 */
+          top: 5.5rem;
         }
       }
-      .shot {
-        flex: 0 0 auto;
-        width: 210px;
-        scroll-snap-align: center;
-      }
-      /*
-        スクリーンショットは App Store 用に 1320×2868 のまま置いてある。
-        LP では上端のステータスバー(時刻がバラバラ・ダイナミックアイランドの黒)を
-        切る。容れ物を元画像より少し低い比率にして、下端を基準に cover させると
-        上だけが削れる。
-      */
-      .shot img {
-        width: 100%;
-        aspect-ratio: 1320 / 2706;
-        object-fit: cover;
-        object-position: bottom;
-        background: var(--panel);
-        border-radius: 26px;
-        border: 1px solid var(--rule);
+      .phone {
+        width: 250px;
+        margin: 0 auto;
+        padding: 10px;
+        border-radius: 42px;
+        background: linear-gradient(160deg, #d7dde6, #f4f6f9);
         box-shadow: var(--shadow);
       }
-      .shot p {
-        margin: 0.9rem 0 0;
-        text-align: center;
-        font-size: 0.85rem;
+      @media (prefers-color-scheme: dark) {
+        .phone {
+          background: linear-gradient(160deg, #2a2f38, #1a1e24);
+        }
+      }
+      .phone-screen {
+        position: relative;
+        border-radius: 32px;
+        overflow: hidden;
+        background: var(--bg);
+        /* スクリーンショットは 1320×2868。上端のステータスバーは切って出す。 */
+        aspect-ratio: 1320 / 2706;
+      }
+      .shot-img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: bottom;
+        opacity: 0;
+        transform: scale(1.015);
+        transition:
+          opacity 0.5s ease,
+          transform 0.6s ease;
+      }
+      .shot-img.is-active {
+        opacity: 1;
+        transform: none;
+      }
+      .dots {
+        display: flex;
+        justify-content: center;
+        gap: 0.4rem;
+        margin-top: 1.1rem;
+      }
+      .dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--rule);
+        transition:
+          background 0.3s ease,
+          transform 0.3s ease;
+      }
+      .dot.is-active {
+        background: var(--accent);
+        transform: scale(1.35);
+      }
+      .captions {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      .captions li {
+        padding: 1.6rem 0;
+        opacity: 0.35;
+        transition:
+          opacity 0.4s ease,
+          transform 0.4s ease;
+      }
+      @media (min-width: 56rem) {
+        .captions li {
+          min-height: 42vh;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          padding: 0;
+        }
+      }
+      .captions li.is-active {
+        opacity: 1;
+      }
+      .captions h3 {
+        margin: 0 0 0.5rem;
+        font-size: clamp(1.15rem, 3vw, 1.5rem);
+        letter-spacing: -0.01em;
+      }
+      .captions p {
+        margin: 0;
         color: var(--muted);
-        line-height: 1.6;
+        max-width: 30rem;
+      }
+
+      /* ---- スクロールで現れる ---- */
+      .reveal {
+        opacity: 0;
+        transform: translateY(18px);
+        transition:
+          opacity 0.6s ease,
+          transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .reveal.is-in {
+        opacity: 1;
+        transform: none;
+      }
+
+      /* 動きを減らす設定の人には動かさない。 */
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+        .reveal,
+        .shot-img,
+        .dot,
+        .captions li {
+          transition: none;
+        }
+        .reveal {
+          opacity: 1;
+          transform: none;
+        }
       }
 
       /* ---- sections ---- */
@@ -366,36 +463,51 @@
       </div>
     </header>
 
-    <div class="shots">
-      <figure class="shot">
-        <img src="screenshots/01-calendar.png" alt="月表示のカレンダーと、その日のメモ一覧" />
-        <p>その月に何があるかが<br />カレンダーの上でわかる</p>
-      </figure>
-      <figure class="shot">
-        <img
-          src="screenshots/05-richtext.png"
-          alt="見出し・チェックリスト・引用を使ったメモの編集画面"
-          loading="lazy"
-        />
-        <p>見出し・チェックリスト・<br />引用も使える</p>
-      </figure>
-      <figure class="shot">
-        <img
-          src="screenshots/03-schedule.png"
-          alt="期間と繰り返しを決める詳細設定"
-          loading="lazy"
-        />
-        <p>期間や繰り返しは<br />詳細設定の中だけに</p>
-      </figure>
-      <figure class="shot">
-        <img
-          src="screenshots/04-settings.png"
-          alt="カテゴリ管理とデータ管理の設定画面"
-          loading="lazy"
-        />
-        <p>カテゴリの色分けと<br />バックアップ</p>
-      </figure>
-    </div>
+    <!--
+      1台の端末を画面に留めたまま、スクロールに合わせて中身を切り替える。
+      横に4枚並べるより、1つずつ見てもらえる。
+    -->
+    <section class="showcase" id="showcase">
+      <div class="showcase-inner">
+        <div class="phone-col">
+          <div class="phone">
+            <div class="phone-screen">
+              <img data-shot="0" class="shot-img is-active" src="screenshots/01-calendar.png" alt="縦にスクロールするカレンダー" />
+              <img data-shot="1" class="shot-img" src="screenshots/02-day-sheet.png" alt="日付をタップすると下から出るメモ一覧" loading="lazy" />
+              <img data-shot="2" class="shot-img" src="screenshots/03-richtext.png" alt="見出し・チェックリスト・引用を使った本文編集" loading="lazy" />
+              <img data-shot="3" class="shot-img" src="screenshots/04-schedule.png" alt="期間と繰り返しを決める詳細設定" loading="lazy" />
+              <img data-shot="4" class="shot-img" src="screenshots/05-settings.png" alt="カテゴリ管理とデータ管理" loading="lazy" />
+            </div>
+          </div>
+          <div class="dots" aria-hidden="true">
+            <span class="dot is-active"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          </div>
+        </div>
+
+        <ol class="captions">
+          <li data-caption="0" class="is-active">
+            <h3>ひと月ぶんを、ひと目で</h3>
+            <p>その日に何を書いたかがカレンダーの上に出ます。縦にスクロールすれば前後の月へそのまま続きます。</p>
+          </li>
+          <li data-caption="1">
+            <h3>日付をタップするだけ</h3>
+            <p>その日のメモが下から出ます。カレンダーは見えたままなので、別の日を選び直すのもすぐです。</p>
+          </li>
+          <li data-caption="2">
+            <h3>書式が使える</h3>
+            <p>見出し・チェックリスト・引用・リンク。買い物リストにも、打ち合わせのメモにも、日記にも。</p>
+          </li>
+          <li data-caption="3">
+            <h3>予定にもなる</h3>
+            <p>何日かにまたがるメモも、毎日・毎週・毎月・毎年の繰り返しも。日付の設定は奥にしまってあります。</p>
+          </li>
+          <li data-caption="4">
+            <h3>色で分けて、持ち出せる</h3>
+            <p>カテゴリの色でひと目で見分けられます。バックアップは書式もカテゴリもそのまま戻せます。</p>
+          </li>
+        </ol>
+      </div>
+    </section>
 
     <section class="wrap steps-section">
       <h2>使い方は3つだけ</h2>
@@ -447,7 +559,7 @@
         </div>
         <figure class="split-shot">
           <img
-            src="screenshots/05-richtext.png"
+            src="screenshots/03-richtext.png"
             alt="見出し・チェックリスト・引用を使ったメモと、書式のツールバー"
             loading="lazy"
           />
@@ -545,5 +657,65 @@
       </div>
       <div>MemoCalendar — 思いついたら、その日にすぐ。</div>
     </footer>
+    <script>
+      // 動きを減らす設定なら、何も動かさない。
+      const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // --- スクロールで現れる ---
+      const revealTargets = document.querySelectorAll(
+        'section h2, .section-lead, .card, .steps li, .chips, .split-shot, .privacy ul, footer',
+      );
+      revealTargets.forEach((el) => el.classList.add('reveal'));
+      if (still || !('IntersectionObserver' in window)) {
+        revealTargets.forEach((el) => el.classList.add('is-in'));
+      } else {
+        const revealer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (!entry.isIntersecting) return;
+              entry.target.classList.add('is-in');
+              revealer.unobserve(entry.target);
+            });
+          },
+          { rootMargin: '0px 0px -12% 0px' },
+        );
+        revealTargets.forEach((el) => revealer.observe(el));
+      }
+
+      // --- 端末の中身を、読んでいる説明に合わせて切り替える ---
+      const shots = [...document.querySelectorAll('.shot-img')];
+      const captions = [...document.querySelectorAll('.captions li')];
+      const dots = [...document.querySelectorAll('.dot')];
+
+      function showShot(index) {
+        shots.forEach((el, i) => el.classList.toggle('is-active', i === index));
+        captions.forEach((el, i) => el.classList.toggle('is-active', i === index));
+        dots.forEach((el, i) => el.classList.toggle('is-active', i === index));
+      }
+
+      if (captions.length > 0 && 'IntersectionObserver' in window) {
+        // 画面の中央に一番近い説明を「読んでいる」とみなす。
+        const spy = new IntersectionObserver(
+          (entries) => {
+            let best = null;
+            entries.forEach((entry) => {
+              if (!entry.isIntersecting) return;
+              if (!best || entry.intersectionRatio > best.intersectionRatio) best = entry;
+            });
+            if (best) showShot(Number(best.target.dataset.caption));
+          },
+          { rootMargin: '-45% 0px -45% 0px', threshold: [0, 0.5, 1] },
+        );
+        captions.forEach((el) => spy.observe(el));
+      }
+
+      // 横に並ぶ狭い画面では説明が同時に見えるので、点をタップして選べるようにする。
+      dots.forEach((dot, i) => {
+        dot.addEventListener('click', () => {
+          showShot(i);
+          captions[i]?.scrollIntoView({ behavior: still ? 'auto' : 'smooth', block: 'center' });
+        });
+      });
+    </script>
   </body>
 </html>
