@@ -138,108 +138,55 @@
         font-size: 0.9rem;
       }
 
-      /* ---- showcase(スクロールで中身が切り替わる1台) ---- */
+      /* ---- showcase(項目ごとに、見せたい部分を切り出したカード) ---- */
       .showcase {
-        padding: 3rem 0 6rem;
+        padding: 4rem 0 2rem;
       }
-      .showcase-inner {
-        max-width: 68rem;
-        margin: 0 auto;
-        padding: 0 1.25rem;
+      .row {
         display: grid;
-        gap: 2rem;
+        gap: 1.75rem;
+        align-items: center;
+        padding: 3.5rem 0;
       }
-      .detail-stack {
-        position: relative;
+      @media (min-width: 52rem) {
+        .row {
+          grid-template-columns: 1fr 1fr;
+          gap: 3.5rem;
+          padding: 4.5rem 0;
+        }
+        /* 左右を交互にして、同じ形が続かないようにする。 */
+        .row:nth-child(even) .row-shot {
+          order: 2;
+        }
+      }
+      .row-shot {
         width: 100%;
-        aspect-ratio: 4 / 3;
+        /* 見せたい範囲が縦長なので、カードも縦長にする。 */
+        aspect-ratio: 4 / 5;
         border-radius: 20px;
-        overflow: hidden;
-        background: var(--panel);
-        border: 1px solid var(--rule);
-        box-shadow: var(--shadow);
-      }
-      .detail {
-        position: absolute;
-        inset: 0;
+        background-color: var(--panel);
         background-image: var(--src);
         background-repeat: no-repeat;
         background-size: var(--zoom) auto;
-        background-position: 50% var(--y);
-        opacity: 0;
-        transform: scale(1.02);
-        transition:
-          opacity 0.5s ease,
-          transform 0.6s ease;
+        background-position: var(--x) var(--y);
+        border: 1px solid var(--rule);
+        box-shadow: var(--shadow);
       }
-      .detail.is-active {
-        opacity: 1;
-        transform: none;
-      }
-      .dots {
-        display: flex;
-        justify-content: center;
-        gap: 0.4rem;
-        margin-top: 1.1rem;
-      }
-      .dot {
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        background: var(--rule);
-        transition:
-          background 0.3s ease,
-          transform 0.3s ease;
-      }
-      .dot.is-active {
-        background: var(--accent);
-        transform: scale(1.35);
-      }
-      .captions {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-      }
-      @media (min-width: 56rem) {
-        .showcase-inner {
-          grid-template-columns: 0.9fr 1.1fr;
-          gap: 4rem;
-          align-items: start;
-        }
-        /* 端末を画面に留めたまま、右の説明だけを流す。 */
-        .phone-col {
-          position: sticky;
-          top: 4.5rem;
+      @media (min-width: 52rem) {
+        .row-shot {
+          max-width: 26rem;
+          justify-self: center;
         }
       }
-      .captions li {
-        padding: 1.6rem 0;
-        opacity: 0.35;
-        transition:
-          opacity 0.4s ease,
-          transform 0.4s ease;
-      }
-      @media (min-width: 56rem) {
-        .captions li {
-          min-height: 42vh;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          padding: 0;
-        }
-      }
-      .captions li.is-active {
-        opacity: 1;
-      }
-      .captions h3 {
-        margin: 0 0 0.5rem;
-        font-size: clamp(1.15rem, 3vw, 1.5rem);
+      .row-text h3 {
+        margin: 0 0 0.6rem;
+        font-size: clamp(1.2rem, 3vw, 1.6rem);
         letter-spacing: -0.01em;
       }
-      .captions p {
+      .row-text p {
         margin: 0;
         color: var(--muted);
-        max-width: 30rem;
+        max-width: 28rem;
       }
 
       /* ---- スクロールで現れる ---- */
@@ -255,18 +202,12 @@
         transform: none;
       }
 
-      /* 動きを減らす設定の人には動かさない。 */
       @media (prefers-reduced-motion: reduce) {
         html {
           scroll-behavior: auto;
         }
-        .reveal,
-        .shot-img,
-        .dot,
-        .captions li {
-          transition: none;
-        }
         .reveal {
+          transition: none;
           opacity: 1;
           transform: none;
         }
@@ -274,11 +215,11 @@
 
       /* ---- sections ---- */
       section {
-        padding: 6rem 0;
+        padding: 7.5rem 0;
       }
       @media (max-width: 40rem) {
         section {
-          padding: 4rem 0;
+          padding: 4.5rem 0;
         }
       }
       h2 {
@@ -461,67 +402,47 @@
       1台の端末を画面に留めたまま、スクロールに合わせて中身を切り替える。
       横に4枚並べるより、1つずつ見てもらえる。
     -->
+    <!--
+      画面全体を小さく出すと中の文字が読めないので、その項目で見せたい部分だけを
+      切り出して大きく出す。倍率と位置は各カードの --zoom / --y で持つ。
+    -->
     <section class="showcase" id="showcase">
-      <div class="showcase-inner">
-        <div class="phone-col">
-          <!--
-            画面全体を小さく出すと、中の文字が実寸の3割まで縮んで読めない。
-            見せたい部分だけを拡大して出す(拡大率と位置は data 属性で持つ)。
-          -->
-          <div class="detail-stack">
-            <div
-              class="detail is-active"
-              data-shot="0"
-              style="--src: url('screenshots/01-calendar.png'); --zoom: 150%; --y: 34%"
-            ></div>
-            <div
-              class="detail"
-              data-shot="1"
-              style="--src: url('screenshots/02-day-sheet.png'); --zoom: 175%; --y: 72%"
-            ></div>
-            <div
-              class="detail"
-              data-shot="2"
-              style="--src: url('screenshots/03-richtext.png'); --zoom: 185%; --y: 10%"
-            ></div>
-            <div
-              class="detail"
-              data-shot="3"
-              style="--src: url('screenshots/04-schedule.png'); --zoom: 165%; --y: 20%"
-            ></div>
-            <div
-              class="detail"
-              data-shot="4"
-              style="--src: url('screenshots/05-settings.png'); --zoom: 165%; --y: 52%"
-            ></div>
-          </div>
-          <div class="dots" aria-hidden="true">
-            <span class="dot is-active"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
-          </div>
+      <div class="wrap">
+      <div class="row">
+        <div class="row-shot" style="--src: url('screenshots/01-calendar.png'); --zoom: 150%; --x: 50%; --y: 21%"></div>
+        <div class="row-text">
+          <h3>ひと月ぶんを、ひと目で</h3>
+          <p>その日に書いたことが、カレンダーにそのまま並びます。縦にスクロールすれば、前後の月へそのまま続きます。</p>
         </div>
-
-        <ol class="captions">
-          <li data-caption="0" class="is-active">
-            <h3>ひと月ぶんを、ひと目で</h3>
-            <p>その日に何を書いたかが、カレンダーにそのまま並びます。縦にスクロールすれば前後の月へ続きます。</p>
-          </li>
-          <li data-caption="1">
-            <h3>日付をタップするだけ</h3>
-            <p>その日のメモが下から出ます。カレンダーは見えたままなので、別の日にもすぐ移れます。</p>
-          </li>
-          <li data-caption="2">
-            <h3>書式が使える</h3>
-            <p>見出し・チェックリスト・引用・リンク。買い物リストにも、打ち合わせのメモにも、日記にも。</p>
-          </li>
-          <li data-caption="3">
-            <h3>予定にもなる</h3>
-            <p>何日かにまたがるメモも、毎日・毎週・毎月・毎年の繰り返しも作れます。日付の設定は奥にしまってあるので、ふだんは目に入りません。</p>
-          </li>
-          <li data-caption="4">
-            <h3>色で分けて、持ち出せる</h3>
-            <p>カテゴリを付ければ、色でひと目で見分けられます。バックアップからは書式もカテゴリもそのまま戻せます。</p>
-          </li>
-        </ol>
+      </div>
+      <div class="row">
+        <div class="row-shot" style="--src: url('screenshots/02-day-sheet.png'); --zoom: 125%; --x: 10%; --y: 71%"></div>
+        <div class="row-text">
+          <h3>日付をタップするだけ</h3>
+          <p>その日のメモが下から出てきます。カレンダーは見えたままなので、別の日にもすぐ移れます。</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="row-shot" style="--src: url('screenshots/03-richtext.png'); --zoom: 130%; --x: 6%; --y: 3%"></div>
+        <div class="row-text">
+          <h3>書式が使える</h3>
+          <p>見出し・チェックリスト・引用・リンクが使えます。買い物リストにも、打ち合わせのメモにも、日記にも。</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="row-shot" style="--src: url('screenshots/04-schedule.png'); --zoom: 120%; --x: 50%; --y: 13%"></div>
+        <div class="row-text">
+          <h3>予定にもなる</h3>
+          <p>何日かにまたがるメモも、毎日・毎週・毎月・毎年の繰り返しも作れます。日付の設定は奥にしまってあるので、ふだんは目に入りません。</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="row-shot" style="--src: url('screenshots/05-settings.png'); --zoom: 120%; --x: 50%; --y: 13%"></div>
+        <div class="row-text">
+          <h3>色で分けて、持ち出せる</h3>
+          <p>カテゴリを付ければ、色でひと目で見分けられます。バックアップからは書式もカテゴリもそのまま戻せます。</p>
+        </div>
+      </div>
       </div>
     </section>
 
@@ -606,7 +527,7 @@
         <div class="card">
           <h3>予定にも使える</h3>
           <p>
-            1日に何件でも置けます。何日かにまたがるメモや、毎日・毎週・毎月・毎年の
+            1日に何件でも書けます。何日かにまたがるメモや、毎日・毎週・毎月・毎年の
             繰り返しも作れます。毎週なら曜日も選べます。
           </p>
         </div>
@@ -679,7 +600,7 @@
 
       // --- スクロールで現れる ---
       const revealTargets = document.querySelectorAll(
-        'section h2, .section-lead, .card, .steps li, .chips, .split-shot, .privacy ul, footer',
+        'section h2, .section-lead, .card, .steps li, .chips, .split-shot, .privacy ul, footer, .row-shot, .row-text',
       );
       revealTargets.forEach((el) => el.classList.add('reveal'));
       if (still || !('IntersectionObserver' in window)) {
@@ -698,56 +619,6 @@
         revealTargets.forEach((el) => revealer.observe(el));
       }
 
-      // --- 端末の中身を、読んでいる説明に合わせて切り替える ---
-      const shots = [...document.querySelectorAll('.detail')];
-      const captions = [...document.querySelectorAll('.captions li')];
-      const dots = [...document.querySelectorAll('.dot')];
-
-      function showShot(index) {
-        shots.forEach((el, i) => el.classList.toggle('is-active', i === index));
-        captions.forEach((el, i) => el.classList.toggle('is-active', i === index));
-        dots.forEach((el, i) => el.classList.toggle('is-active', i === index));
-      }
-
-      // 画面の中央に一番近い説明を「読んでいる」とみなす。IntersectionObserver で
-      // 帯を作る方法だと、速くスクロールしたときに帯を跨いだ通知が来ず取り残される。
-      let queued = false;
-      function syncShot() {
-        queued = false;
-        const middle = window.innerHeight / 2;
-        let nearest = 0;
-        let shortest = Infinity;
-        captions.forEach((el, i) => {
-          const box = el.getBoundingClientRect();
-          const distance = Math.abs(box.top + box.height / 2 - middle);
-          if (distance < shortest) {
-            shortest = distance;
-            nearest = i;
-          }
-        });
-        showShot(nearest);
-      }
-      if (captions.length > 0) {
-        window.addEventListener(
-          'scroll',
-          () => {
-            if (queued) return;
-            queued = true;
-            requestAnimationFrame(syncShot);
-          },
-          { passive: true },
-        );
-        window.addEventListener('resize', syncShot);
-        syncShot();
-      }
-
-      // 横に並ぶ狭い画面では説明が同時に見えるので、点をタップして選べるようにする。
-      dots.forEach((dot, i) => {
-        dot.addEventListener('click', () => {
-          showShot(i);
-          captions[i]?.scrollIntoView({ behavior: still ? 'auto' : 'smooth', block: 'center' });
-        });
-      });
     </script>
   </body>
 </html>
