@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MemoCalendar — 思いついたら、その日にすぐ書ける</title>
+    <meta
+      name="description"
+      content="日付をタップして、そのまま書くだけ。保存ボタンもフォルダ分けもありません。書いたものは端末の中だけに残ります。"
+    />
+    <link rel="icon" href="icon.png" />
+    <style>
+      :root {
+        color-scheme: light dark;
+        --accent: #3d5a80;
+        --accent-soft: #eef2f8;
+        --fg: #1c1e21;
+        --muted: #64686e;
+        --bg: #ffffff;
+        --panel: #f7f8fa;
+        --rule: #e4e7ec;
+        --shadow: 0 18px 50px -20px rgb(29 41 61 / 35%);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --accent: #8fb0d9;
+          --accent-soft: #1e2833;
+          --fg: #e9eaec;
+          --muted: #9aa0a8;
+          --bg: #101216;
+          --panel: #171a1f;
+          --rule: #272b32;
+          --shadow: 0 18px 50px -20px rgb(0 0 0 / 70%);
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+          'Noto Sans JP', sans-serif;
+        line-height: 1.8;
+        -webkit-font-smoothing: antialiased;
+      }
+      img {
+        max-width: 100%;
+        display: block;
+      }
+      a {
+        color: var(--accent);
+      }
+      .wrap {
+        max-width: 68rem;
+        margin: 0 auto;
+        padding: 0 1.25rem;
+      }
+
+      /* ---- top bar ---- */
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        backdrop-filter: saturate(180%) blur(12px);
+        background: color-mix(in srgb, var(--bg) 82%, transparent);
+        border-bottom: 1px solid var(--rule);
+      }
+      .topbar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 0.7rem;
+        padding-bottom: 0.7rem;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        text-decoration: none;
+        color: var(--fg);
+        font-weight: 700;
+        letter-spacing: -0.01em;
+      }
+      .brand img {
+        width: 28px;
+        height: 28px;
+        border-radius: 7px;
+      }
+      .topbar-link {
+        font-size: 0.9rem;
+        text-decoration: none;
+      }
+
+      /* ---- hero ---- */
+      header {
+        padding: 4rem 0 3rem;
+        background: linear-gradient(180deg, var(--accent-soft), transparent);
+      }
+      .hero {
+        display: grid;
+        gap: 2.5rem;
+        align-items: center;
+        text-align: center;
+      }
+      .app-icon {
+        width: 92px;
+        height: 92px;
+        border-radius: 21px;
+        margin: 0 auto;
+        box-shadow: var(--shadow);
+      }
+      h1 {
+        font-size: clamp(2rem, 6vw, 3.1rem);
+        line-height: 1.25;
+        letter-spacing: -0.02em;
+        margin: 1.5rem 0 0.75rem;
+      }
+      .tagline {
+        font-size: clamp(1rem, 2.6vw, 1.2rem);
+        color: var(--muted);
+        margin: 0 auto;
+        max-width: 34rem;
+      }
+      .badge {
+        display: inline-block;
+        margin-top: 1.75rem;
+        padding: 0.55rem 1.15rem;
+        border: 1px solid var(--rule);
+        border-radius: 999px;
+        background: var(--bg);
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      /* ---- screenshot strip ---- */
+      .shots {
+        display: flex;
+        align-items: flex-start;
+        gap: 1.25rem;
+        overflow-x: auto;
+        padding: 0.5rem 1.25rem 2.5rem;
+        scroll-snap-type: x mandatory;
+        justify-content: flex-start;
+      }
+      .shots figure {
+        margin: 0;
+      }
+      @media (min-width: 60rem) {
+        .shots {
+          justify-content: center;
+          overflow-x: visible;
+        }
+      }
+      .shot {
+        flex: 0 0 auto;
+        width: 210px;
+        scroll-snap-align: center;
+      }
+      /*
+        スクリーンショットは App Store 用に 1320×2868 のまま置いてある。
+        LP では上端のステータスバー(時刻がバラバラ・ダイナミックアイランドの黒)を
+        切る。容れ物を元画像より少し低い比率にして、下端を基準に cover させると
+        上だけが削れる。
+      */
+      .shot img {
+        width: 100%;
+        aspect-ratio: 1320 / 2706;
+        object-fit: cover;
+        object-position: bottom;
+        background: var(--panel);
+        border-radius: 26px;
+        border: 1px solid var(--rule);
+        box-shadow: var(--shadow);
+      }
+      .shot p {
+        margin: 0.9rem 0 0;
+        text-align: center;
+        font-size: 0.85rem;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      /* ---- sections ---- */
+      section {
+        padding: 3.5rem 0;
+      }
+      h2 {
+        font-size: clamp(1.35rem, 3.4vw, 1.8rem);
+        letter-spacing: -0.01em;
+        margin: 0 0 0.5rem;
+      }
+      .section-lead {
+        color: var(--muted);
+        margin: 0 0 2rem;
+        max-width: 38rem;
+      }
+      .features {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+      }
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--rule);
+        border-radius: 14px;
+        padding: 1.4rem 1.5rem;
+      }
+      .card h3 {
+        margin: 0 0 0.4rem;
+        font-size: 1.05rem;
+      }
+      .card p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.95rem;
+        line-height: 1.75;
+      }
+
+      /* ---- steps ---- */
+      .steps {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: 1.5rem;
+        grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+        counter-reset: step;
+      }
+      .steps li {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+      }
+      .num {
+        flex: 0 0 auto;
+        width: 2.1rem;
+        height: 2.1rem;
+        border-radius: 50%;
+        background: var(--accent);
+        color: var(--bg);
+        display: grid;
+        place-items: center;
+        font-weight: 700;
+        font-size: 0.95rem;
+        margin-top: 0.2rem;
+      }
+      .steps h3 {
+        margin: 0 0 0.25rem;
+        font-size: 1.05rem;
+      }
+      .steps p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.95rem;
+        line-height: 1.75;
+      }
+
+      /* ---- editor showcase ---- */
+      .editor-section {
+        background: var(--panel);
+        border-top: 1px solid var(--rule);
+        border-bottom: 1px solid var(--rule);
+      }
+      .split {
+        display: grid;
+        gap: 2.5rem;
+        align-items: center;
+      }
+      @media (min-width: 52rem) {
+        .split {
+          grid-template-columns: 1.1fr 0.9fr;
+          gap: 3.5rem;
+        }
+      }
+      .split-shot {
+        margin: 0;
+        justify-self: center;
+      }
+      .split-shot img {
+        width: 240px;
+        aspect-ratio: 1320 / 2706;
+        object-fit: cover;
+        object-position: bottom;
+        border-radius: 28px;
+        border: 1px solid var(--rule);
+        box-shadow: var(--shadow);
+        background: var(--bg);
+      }
+      .chips {
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin: 1.5rem 0 0;
+        padding: 0;
+      }
+      .chips li {
+        padding: 0.35rem 0.85rem;
+        border-radius: 999px;
+        background: var(--bg);
+        border: 1px solid var(--rule);
+        font-size: 0.88rem;
+        color: var(--muted);
+      }
+
+      /* ---- privacy highlight ---- */
+      .privacy {
+        background: var(--panel);
+        border-top: 1px solid var(--rule);
+        border-bottom: 1px solid var(--rule);
+      }
+      .privacy ul {
+        margin: 1rem 0 0;
+        padding-left: 1.2rem;
+        color: var(--muted);
+      }
+      .privacy li {
+        margin: 0.45rem 0;
+      }
+      .privacy strong {
+        color: var(--fg);
+      }
+
+      /* ---- footer ---- */
+      footer {
+        padding: 2.5rem 0 4rem;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+      .links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        margin-bottom: 1.25rem;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="topbar">
+      <div class="wrap topbar-inner">
+        <a class="brand" href="#top">
+          <img src="icon.png" alt="" />
+          <span>MemoCalendar</span>
+        </a>
+        <a class="topbar-link" href="privacy.html">プライバシー</a>
+      </div>
+    </nav>
+
+    <header id="top">
+      <div class="wrap hero">
+        <div>
+          <img class="app-icon" src="icon.png" alt="MemoCalendar のアイコン" />
+          <h1>思いついたら、<br />その日にすぐ。</h1>
+          <p class="tagline">
+            日付をタップして、そのまま書くだけ。保存ボタンも、フォルダ分けも、
+            タイトルを付ける手間もありません。
+          </p>
+          <span class="badge">iPhone 向け・近日公開</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="shots">
+      <figure class="shot">
+        <img src="screenshots/01-calendar.png" alt="月表示のカレンダーと、その日のメモ一覧" />
+        <p>その月に何があるかが<br />カレンダーの上でわかる</p>
+      </figure>
+      <figure class="shot">
+        <img
+          src="screenshots/05-richtext.png"
+          alt="見出し・チェックリスト・引用を使ったメモの編集画面"
+          loading="lazy"
+        />
+        <p>見出し・チェックリスト・<br />引用も使える</p>
+      </figure>
+      <figure class="shot">
+        <img
+          src="screenshots/03-schedule.png"
+          alt="期間と繰り返しを決める詳細設定"
+          loading="lazy"
+        />
+        <p>期間や繰り返しは<br />詳細設定の中だけに</p>
+      </figure>
+      <figure class="shot">
+        <img
+          src="screenshots/04-settings.png"
+          alt="カテゴリ管理とデータ管理の設定画面"
+          loading="lazy"
+        />
+        <p>カテゴリの色分けと<br />バックアップ</p>
+      </figure>
+    </div>
+
+    <section class="wrap steps-section">
+      <h2>使い方は3つだけ</h2>
+      <p class="section-lead">覚えることを増やさないために、動線を絞っています。</p>
+      <ol class="steps">
+        <li>
+          <span class="num">1</span>
+          <div>
+            <h3>日付をタップ</h3>
+            <p>その日のメモ一覧が開きます。何件あっても同じ場所から始まります。</p>
+          </div>
+        </li>
+        <li>
+          <span class="num">2</span>
+          <div>
+            <h3>書く</h3>
+            <p>入力が止まると自動で保存されます。保存ボタンを探す必要はありません。</p>
+          </div>
+        </li>
+        <li>
+          <span class="num">3</span>
+          <div>
+            <h3>必要なら日付を足す</h3>
+            <p>期間や繰り返しは詳細設定の中。ふだんは意識せずに、書くことだけに集中できます。</p>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <section class="editor-section">
+      <div class="wrap split">
+        <div>
+          <h2>カレンダーなのに、<br />ちゃんと書ける。</h2>
+          <p class="section-lead">
+            日付ごとのアプリは、たいてい一行のタイトルしか置けません。このアプリの本文は
+            <strong>リッチテキストエディタ</strong>です。見出しで区切り、チェックリストで
+            持ち物を並べ、引用で相手の言葉をそのまま残す。買い物リストも、打ち合わせのメモも、
+            日記も、同じ場所に書けます。
+          </p>
+          <ul class="chips">
+            <li>見出し</li>
+            <li>太字・斜体・下線</li>
+            <li>箇条書き</li>
+            <li>番号付き</li>
+            <li>チェックリスト</li>
+            <li>引用</li>
+            <li>リンク</li>
+          </ul>
+        </div>
+        <figure class="split-shot">
+          <img
+            src="screenshots/05-richtext.png"
+            alt="見出し・チェックリスト・引用を使ったメモと、書式のツールバー"
+            loading="lazy"
+          />
+        </figure>
+      </div>
+    </section>
+
+    <section class="wrap">
+      <h2>できること</h2>
+      <p class="section-lead">
+        予定管理アプリほど大げさではなく、メモ帳よりは日付に強い。その間を狙っています。
+      </p>
+      <div class="features">
+        <div class="card">
+          <h3>タップして、書くだけ</h3>
+          <p>
+            日付をタップするとその日のメモが開きます。入力が止まると自動で保存されるので、
+            保存ボタンはありません。
+          </p>
+        </div>
+        <div class="card">
+          <h3>書式が使える</h3>
+          <p>
+            見出し・太字・箇条書き・チェックリスト・引用・リンク。買い物リストにも、
+            打ち合わせのメモにも。
+          </p>
+        </div>
+        <div class="card">
+          <h3>予定にも使える</h3>
+          <p>
+            1日に何件でも置けます。何日かにまたがるメモや、毎日・毎週・毎月・毎年の
+            繰り返しも。毎週なら曜日も選べます。
+          </p>
+        </div>
+        <div class="card">
+          <h3>色で見分けられる</h3>
+          <p>
+            カテゴリを付けると、カレンダーに色の点が並びます。カテゴリは自由に追加・
+            改名・色変更ができます。
+          </p>
+        </div>
+        <div class="card">
+          <h3>持ち出せる</h3>
+          <p>
+            機種変更や再インストールに備えてバックアップを書き出せます。書式もカテゴリも
+            そのまま戻せます。
+          </p>
+        </div>
+        <div class="card">
+          <h3>他のカレンダーとも</h3>
+          <p>
+            .ics 形式で書き出し・取り込みができます。他のカレンダーアプリからの
+            乗り換えにも、そこへの移行にも。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="privacy">
+      <div class="wrap">
+        <h2>どこにも送りません</h2>
+        <p class="section-lead">
+          「送らない」と書いてあるアプリは多いですが、このアプリは
+          <strong>そもそも通信する仕組みを持っていません</strong>。
+        </p>
+        <ul>
+          <li><strong>サーバーがありません。</strong> アカウント登録も要りません</li>
+          <li><strong>書いた内容は端末の中だけ</strong>に保存されます。開発者にも見えません</li>
+          <li>利用状況の解析ツールも、広告の仕組みも入っていません</li>
+          <li>
+            バックアップの書き出し先は、あなたが iOS の共有シートで選びます。
+            アプリが勝手にどこかへ送ることはありません
+          </li>
+        </ul>
+        <p style="margin-top: 1.5rem">
+          <a href="privacy.html">プライバシーポリシーの全文を読む →</a>
+        </p>
+      </div>
+    </section>
+
+    <section class="wrap">
+      <h2>ひとつだけ、できないこと</h2>
+      <p class="section-lead">
+        通信しないので、<strong>端末をまたいだ同期はできません</strong>。
+        機種変更のときは、設定画面からバックアップを書き出して新しい端末で読み込んでください。
+        同期が要る方には向きません。
+      </p>
+    </section>
+
+    <footer class="wrap">
+      <div class="links">
+        <a href="privacy.html">プライバシーポリシー</a>
+        <a href="https://github.com/wadashuri/memocalendar">GitHub</a>
+        <a href="mailto:slaboratory.info@gmail.com">お問い合わせ</a>
+      </div>
+      <div>MemoCalendar — 思いついたら、その日にすぐ。</div>
+    </footer>
+  </body>
+</html>
