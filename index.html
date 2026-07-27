@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>MemoCalendar — 思いついたら、その日にすぐ書ける</title>
+    <title>MemoCalendar — カレンダーに、ちゃんとした文章が書ける</title>
     <meta
       name="description"
-      content="日付をタップして、そのまま書くだけ。保存ボタンもフォルダ分けもありません。書いたものは端末の中だけに残ります。"
+      content="日付をタップして、そのまま書く。見出し・チェックリスト・引用まで使えるエディタが、カレンダーの中にあります。書いたものは端末の中だけに残ります。"
     />
     <link rel="icon" href="icon.png" />
     <style>
@@ -20,6 +20,11 @@
         --panel: #f7f8fa;
         --rule: #e4e7ec;
         --shadow: 0 18px 50px -20px rgb(29 41 61 / 35%);
+        /* 端末画面の中だけは、アプリと同じ見え方(明るい紙)で固定する。 */
+        --screen-bg: #ffffff;
+        --screen-fg: #2b2b2b;
+        --screen-muted: #55585c;
+        --screen-rule: #d8dde3;
       }
       @media (prefers-color-scheme: dark) {
         :root {
@@ -105,33 +110,47 @@
 
       /* ---- hero ---- */
       header {
-        padding: 5rem 0 4rem;
+        padding: 4rem 0 4.5rem;
         background: linear-gradient(180deg, var(--accent-soft), transparent);
       }
+      /*
+        ファーストビューの主役は「文章が書かれていく画面」なので、広い画面では
+        文章と端末を横に並べ、狭い画面では見出しのすぐ下に端末を出す。
+      */
       .hero {
         display: grid;
-        gap: 2.5rem;
+        gap: 2.75rem;
         align-items: center;
-        text-align: center;
       }
-      .app-icon {
-        width: 92px;
-        height: 92px;
-        border-radius: 21px;
-        margin: 0 auto;
+      @media (min-width: 56rem) {
+        .hero {
+          grid-template-columns: 1fr minmax(0, 20rem);
+          gap: 4rem;
+        }
+      }
+      .hero-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 15px;
         box-shadow: var(--shadow);
       }
       h1 {
-        font-size: clamp(2rem, 6vw, 3.1rem);
+        font-size: clamp(1.9rem, 5.4vw, 3rem);
         line-height: 1.25;
         letter-spacing: -0.02em;
-        margin: 1.5rem 0 0.75rem;
+        margin: 1.5rem 0 0.9rem;
       }
       .tagline {
-        font-size: clamp(1rem, 2.6vw, 1.2rem);
+        font-size: clamp(1rem, 2.6vw, 1.15rem);
         color: var(--muted);
-        margin: 0 auto;
-        max-width: 34rem;
+        margin: 0;
+        max-width: 30rem;
+      }
+      .hero-note {
+        margin: 1.1rem 0 0;
+        color: var(--muted);
+        font-size: 0.95rem;
+        max-width: 30rem;
       }
       .badge {
         display: inline-block;
@@ -144,21 +163,261 @@
         font-size: 0.9rem;
       }
 
-      /* ---- showcase(項目ごとに、見せたい部分を切り出したカード) ---- */
-      .showcase {
-        padding: 4rem 0 2rem;
+      /* ---- 端末の枠(ヒーローのデモと作例で共用) ---- */
+      .phone {
+        width: 100%;
+        max-width: 20rem;
+        margin: 0 auto;
+        border-radius: 34px;
+        padding: 10px;
+        background: linear-gradient(160deg, #2c3038, #14161a);
+        box-shadow: var(--shadow);
       }
+      .phone-screen {
+        background: var(--screen-bg);
+        color: var(--screen-fg);
+        border-radius: 25px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+      /* アプリのナビゲーションバーに合わせた1行。 */
+      .screen-bar {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.75rem 0.85rem 0.5rem;
+        font-size: 0.78rem;
+        color: var(--screen-fg);
+        font-weight: 600;
+        line-height: 1.4;
+      }
+      .screen-bar .back {
+        color: #3d5a80;
+        font-weight: 400;
+      }
+      .screen-bar .done {
+        margin-left: auto;
+        color: #3d5a80;
+        font-weight: 400;
+      }
+      .cat {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.05rem 0.5rem;
+        border-radius: 999px;
+        background: #eef1f6;
+        color: var(--screen-muted);
+        font-size: 0.68rem;
+        font-weight: 500;
+      }
+      .cat::before {
+        content: '';
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+      }
+      .cat.is-work {
+        color: #3d5a80;
+      }
+      .cat.is-life {
+        color: #2f7a4d;
+      }
+      .cat.is-private {
+        color: #6d4aa8;
+      }
+      .screen-body {
+        padding: 0.35rem 0.95rem 1.1rem;
+        font-size: 0.86rem;
+        line-height: 1.6;
+      }
+
+      /* 本文の書式。アプリの WebView に入れている CSS に合わせる。 */
+      .d-h1 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        line-height: 1.35;
+        margin: 0.7rem 0 0.25rem;
+      }
+      .d-h1:first-child {
+        margin-top: 0.25rem;
+      }
+      .d-h2 {
+        font-size: 1.03rem;
+        font-weight: 700;
+        line-height: 1.4;
+        margin: 0.8rem 0 0.25rem;
+      }
+      .d-p {
+        margin: 0 0 0.3rem;
+      }
+      .d-check {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.45rem;
+        margin: 0.12rem 0;
+      }
+      .d-check .box {
+        flex: none;
+        width: 0.95em;
+        height: 0.95em;
+        margin-top: 0.32em;
+        border: 1.5px solid #9aa0a8;
+        border-radius: 3px;
+        position: relative;
+      }
+      .d-check.is-done .box {
+        background: #1c1e21;
+        border-color: #1c1e21;
+      }
+      .d-check.is-done .box::after {
+        content: '';
+        position: absolute;
+        left: 28%;
+        top: 6%;
+        width: 28%;
+        height: 60%;
+        border: solid #fff;
+        border-width: 0 1.6px 1.6px 0;
+        transform: rotate(45deg);
+      }
+      .d-quote {
+        margin: 0.45rem 0 0.3rem;
+        padding-left: 0.6rem;
+        border-left: 3px solid var(--screen-rule);
+        color: var(--screen-muted);
+      }
+      .d-ul {
+        margin: 0.1rem 0 0.3rem;
+        padding-left: 1.15rem;
+      }
+      .d-ul li {
+        margin: 0.1rem 0;
+      }
+      .d-link {
+        color: #3d5a80;
+        text-decoration: underline;
+      }
+      .d-b {
+        font-weight: 700;
+      }
+      .d-i {
+        font-style: italic;
+      }
+
+      /* ---- ヒーローの入力デモ ---- */
+      /*
+        実機の画面録画に差し替えるときは、.demo-stage と .demo-toolbar を
+        <video src="..." autoplay muted loop playsinline> ひとつに置き換える。
+        端末の枠(.phone)はそのまま使える。
+      */
+      .demo-stage {
+        /* 打っている途中で高さが変わると周りが揺れる。最初から確保しておく。 */
+        min-height: 15.5rem;
+      }
+      .caret {
+        display: inline-block;
+        width: 2px;
+        height: 1.05em;
+        margin-left: 1px;
+        vertical-align: -0.16em;
+        background: #3d5a80;
+        animation: blink 1.05s step-end infinite;
+      }
+      @keyframes blink {
+        50% {
+          opacity: 0;
+        }
+      }
+      /* エディタのツールバー。いまどの書式で書いているかが光る。 */
+      .demo-toolbar {
+        display: flex;
+        gap: 0.3rem;
+        padding: 0.5rem 0.6rem;
+        border-top: 1px solid #eceef1;
+        background: #f7f8fa;
+      }
+      .demo-toolbar span {
+        flex: 1;
+        text-align: center;
+        padding: 0.25rem 0;
+        border-radius: 7px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: #8b9098;
+        transition:
+          background 0.18s ease,
+          color 0.18s ease;
+      }
+      .demo-toolbar span.on {
+        background: #dfe7f2;
+        color: #3d5a80;
+      }
+      .demo-caption {
+        margin: 0.9rem auto 0;
+        max-width: 20rem;
+        text-align: center;
+        font-size: 0.82rem;
+        color: var(--muted);
+      }
+
+      /* ---- 作例カード ---- */
+      .samples {
+        display: grid;
+        gap: 1.5rem;
+      }
+      @media (min-width: 46rem) {
+        .samples {
+          grid-template-columns: repeat(3, 1fr);
+          gap: 1.75rem;
+        }
+      }
+      .samples .phone {
+        max-width: 22rem;
+      }
+      .sample-note {
+        margin: 0.85rem auto 0;
+        max-width: 22rem;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      /* ---- 書式の一覧 ---- */
+      .marks {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      .marks li {
+        padding: 0.4rem 0.95rem;
+        border: 1px solid var(--rule);
+        border-radius: 999px;
+        background: var(--bg);
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+      .marks-after {
+        margin: 1.75rem 0 0;
+        color: var(--muted);
+        max-width: 38rem;
+      }
+
+      /* ---- showcase(項目ごとに、見せたい部分を切り出したカード) ---- */
       .row {
         display: grid;
         gap: 1.75rem;
         align-items: center;
-        padding: 4.5rem 0;
+        padding: 3.5rem 0;
       }
       @media (min-width: 52rem) {
         .row {
           grid-template-columns: 1fr 1fr;
           gap: 3.5rem;
-          padding: 4.5rem 0;
         }
         /* 左右を交互にして、同じ形が続かないようにする。 */
         .row:nth-child(even) .row-shot {
@@ -203,6 +462,26 @@
         max-width: 28rem;
       }
 
+      /* ---- 立ち位置 ---- */
+      .place {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: grid;
+        gap: 1.25rem;
+        max-width: 44rem;
+      }
+      .place li {
+        padding-left: 1.1rem;
+        border-left: 3px solid var(--rule);
+        color: var(--muted);
+      }
+      .place strong {
+        display: block;
+        color: var(--fg);
+        font-weight: 600;
+      }
+
       /* ---- スクロールで現れる ---- */
       .reveal {
         opacity: 0;
@@ -225,21 +504,25 @@
           opacity: 1;
           transform: none;
         }
+        .caret {
+          animation: none;
+        }
       }
 
       /* ---- sections ---- */
       section {
-        padding: 9rem 0;
+        padding: 7rem 0;
       }
       @media (max-width: 40rem) {
         section {
-          padding: 4.5rem 0;
+          padding: 4rem 0;
         }
       }
       h2 {
-        font-size: clamp(1.35rem, 3.4vw, 1.8rem);
+        font-size: clamp(1.35rem, 3.4vw, 1.9rem);
         letter-spacing: -0.01em;
         margin: 0 0 0.75rem;
+        line-height: 1.4;
       }
       .section-lead {
         color: var(--muted);
@@ -292,79 +575,233 @@
     <header id="top">
       <div class="wrap hero">
         <div>
-          <img class="app-icon" src="icon.png" alt="MemoCalendar のアイコン" />
-          <h1>思いついたら、<br />その日にすぐ。</h1>
+          <img class="hero-icon" src="icon.png" alt="MemoCalendar のアイコン" />
+          <h1>カレンダーに、<br />ちゃんとした文章が書ける。</h1>
           <p class="tagline">
-            日付をタップして、そのまま書くだけ。保存ボタンも、フォルダ分けも、
-            タイトルを付ける手間もありません。
+            見出しで区切る。チェックリストを並べる。相手の言葉を引用で残す。
+            カレンダー系のアプリにありがちな「一言メモ欄」ではなく、メモアプリと同じ書き心地です。
+          </p>
+          <p class="hero-note">
+            日付をタップして、そのまま書くだけ。保存ボタンもフォルダ分けもありません。
           </p>
           <span class="badge">iPhone 向け・近日公開</span>
+        </div>
+
+        <!--
+          ここで見せたいのは機能の名前ではなく「書けること」そのもの。
+          実際に打つ順番どおりに、書式が切り替わりながら文章が増えていく。
+          画面録画ができたら、この中身を <video> に差し替える。
+        -->
+        <div>
+          <div class="phone">
+            <div class="phone-screen">
+              <div class="screen-bar">
+                <span class="back">‹</span>
+                <span>7月25日(土)</span>
+                <span class="cat is-work">仕事</span>
+                <span class="done">完了</span>
+              </div>
+              <div class="screen-body demo-stage" id="demo" aria-hidden="true"></div>
+              <div class="demo-toolbar" id="demo-toolbar" aria-hidden="true">
+                <span data-tool="h">見出し</span>
+                <span data-tool="b">太字</span>
+                <span data-tool="list">箇条書き</span>
+                <span data-tool="check">チェック</span>
+                <span data-tool="quote">引用</span>
+              </div>
+            </div>
+          </div>
+          <p class="demo-caption">入力中の画面です。書式は下のバーから、書きながら切り替えます。</p>
         </div>
       </div>
     </header>
 
     <!--
-      1台の端末を画面に留めたまま、スクロールに合わせて中身を切り替える。
-      横に4枚並べるより、1つずつ見てもらえる。
+      ヒーローで「書ける」と言い切ったので、次はその中身。
+      画面写真だと文字が小さくて読めないため、書式そのものをHTMLで組んで
+      実物大の書き味を見せる。
     -->
-    <!--
-      画面全体を小さく出すと中の文字が読めないので、その項目で見せたい部分だけを
-      切り出して大きく出す。位置は各カードの --y で持つ。
-    -->
-    <section class="showcase" id="showcase">
-      <div class="wrap">
+    <section class="wrap">
+      <h2>「メモ欄」ではなく、メモアプリです</h2>
+      <p class="section-lead">
+        日付ごとのアプリでは、書けるのが一行の予定名だけ、ということが少なくありません。
+        このアプリでは、その日のページがそのままメモ帳になります。実際の見え方はこんな具合です。
+      </p>
+
+      <div class="samples">
+        <div>
+          <div class="phone">
+            <div class="phone-screen">
+              <div class="screen-bar">
+                <span class="back">‹</span>
+                <span>7月25日(土)</span>
+                <span class="cat is-work">仕事</span>
+              </div>
+              <div class="screen-body">
+                <div class="d-h1">打ち合わせメモ</div>
+                <div class="d-p">次回までに見積もりを出す。</div>
+                <div class="d-check is-done">
+                  <span class="box"></span><span>先方に日程を確認</span>
+                </div>
+                <div class="d-check"><span class="box"></span><span>たたき台をつくる</span></div>
+                <div class="d-quote">予算は前回と同じ枠で、とのこと</div>
+                <div class="d-p">あとで <span class="d-i">資料</span> を添付する。</div>
+              </div>
+            </div>
+          </div>
+          <p class="sample-note">
+            聞いた言葉は引用で、宿題はチェックリストで。あとから見返したときに、どこが決まったことかが分かります。
+          </p>
+        </div>
+
+        <div>
+          <div class="phone">
+            <div class="phone-screen">
+              <div class="screen-bar">
+                <span class="back">‹</span>
+                <span>8月10日(月)</span>
+                <span class="cat is-private">旅行</span>
+              </div>
+              <div class="screen-body">
+                <div class="d-h1">京都 1日目</div>
+                <div class="d-h2">持ち物</div>
+                <div class="d-check is-done"><span class="box"></span><span>充電器</span></div>
+                <div class="d-check is-done"><span class="box"></span><span>常備薬</span></div>
+                <div class="d-check"><span class="box"></span><span>折りたたみ傘</span></div>
+                <div class="d-h2">まわる順</div>
+                <ul class="d-ul">
+                  <li>10:00 ホテルに荷物を預ける</li>
+                  <li>11:30 昼ごはん(<span class="d-b">要予約</span>)</li>
+                  <li>14:00 二条城</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <p class="sample-note">
+            見出しで「持ち物」と「まわる順」を分ける。当日はチェックを付けながら進めます。
+          </p>
+        </div>
+
+        <div>
+          <div class="phone">
+            <div class="phone-screen">
+              <div class="screen-bar">
+                <span class="back">‹</span>
+                <span>7月3日(金)</span>
+                <span class="cat is-life">通院</span>
+              </div>
+              <div class="screen-body">
+                <div class="d-h1">内科</div>
+                <div class="d-p">朝から 37.8℃。喉の痛みは昨日より軽い。</div>
+                <div class="d-quote">水分をとって、熱が下がっても2日は様子を見ること</div>
+                <div class="d-h2">処方</div>
+                <ul class="d-ul">
+                  <li>解熱剤 5日分</li>
+                  <li>うがい薬</li>
+                </ul>
+                <div class="d-p">次は <span class="d-link">7月10日</span> に再診。</div>
+              </div>
+            </div>
+          </div>
+          <p class="sample-note">
+            その日の体調も、言われたことも、同じ日付の下に。日付で探せるので、記録が迷子になりません。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap">
+      <h2>使える書式</h2>
+      <p class="section-lead">
+        文章を組み立てるのに要るものだけを入れています。多すぎて迷う、ということがない範囲です。
+      </p>
+      <ul class="marks">
+        <li>見出し(大・中・小)</li>
+        <li>太字</li>
+        <li>斜体</li>
+        <li>下線</li>
+        <li>箇条書き</li>
+        <li>番号付きリスト</li>
+        <li>チェックリスト</li>
+        <li>引用</li>
+        <li>リンク</li>
+      </ul>
+      <p class="marks-after">
+        画像と動画は入れていません。入れると「書く」より「貼る」ためのアプリになり、
+        開いてから書き始めるまでが遠くなるからです。
+      </p>
+    </section>
+
+    <section class="wrap">
+      <h2>開いた瞬間から、書ける</h2>
+      <p class="section-lead">
+        カレンダーの日付をタップすると、その日のメモが下から出ます。あとは打つだけです。
+        タイトルを付ける必要も、どのフォルダに入れるか決める必要もありません。
+        入力が止まると自動で保存されるので、保存ボタンもありません。
+      </p>
       <div class="row">
         <div class="row-shot" style="--src: url('screenshots/01-calendar.png'); --y: 24%"></div>
         <div class="row-text">
-          <h3>画面はこれだけ。だから迷わない</h3>
-          <p>並んでいるのはカレンダーと本文だけです。メニューをたどる必要も、使い方を覚える必要もありません。</p>
+          <h3>探す場所は、いつも日付</h3>
+          <p>
+            書いたものは、その日のマスに1行目が出ます。
+            「あれをいつ書いたか」を思い出せなくても、カレンダーをさかのぼれば見つかります。
+          </p>
         </div>
       </div>
-      <div class="row">
-        <div class="row-shot" style="--src: url('screenshots/03-richtext.png'); --y: 18%"></div>
-        <div class="row-text">
-          <h3>メモ機能が充実</h3>
-          <p>見出しで区切る、チェックリストで持ち物を並べる、引用で相手の言葉を残す。日付ごとのアプリで、ここまで書けるものはあまりありません。</p>
-        </div>
-      </div>
-      <div class="row">
-        <div class="row-shot" style="--src: url('screenshots/04-schedule.png'); --y: 16%"></div>
-        <div class="row-text">
-          <h3>予定も簡単に管理</h3>
-          <p>何日かにまたがる予定も、毎日・毎週・毎月・毎年の繰り返しも数タップで作れます。毎週なら曜日も選べます。</p>
-        </div>
-      </div>
-      <div class="row">
-        <div class="row-shot is-short" style="--src: url('screenshots/06-categories.png'); --y: 10%"></div>
-        <div class="row-text">
-          <h3>カテゴリで色分け</h3>
-          <p>仕事・個人・予定など、メモにカテゴリを付けるとカレンダーに色の点が並びます。名前も色も自由に変えられ、いくつでも増やせます。</p>
-        </div>
-      </div>
-      <div class="row">
-        <div class="row-shot is-short" style="--src: url('screenshots/05-settings.png'); --y: 10%"></div>
-        <div class="row-text">
-          <h3>機種変更でも、そのまま移せる</h3>
-          <p>書き出したファイルを読み込めば、書式もカテゴリもそのまま戻ります。.ics 形式を選べば、他のカレンダーアプリともやりとりできます。</p>
-        </div>
-      </div>
-      </div>
+    </section>
+
+    <!--
+      競合の名前は出さない。読んだ人が自分の使っているアプリを当てはめられれば足りるし、
+      名指しの比較は、このLPの落ち着いた調子と合わない。
+    -->
+    <section class="wrap">
+      <h2>このアプリの立ち位置</h2>
+      <p class="section-lead">
+        「カレンダーが主役」と「ちゃんと書けるエディタ」は、意外と同時には揃いません。
+        たいていは、どちらかに寄っています。
+      </p>
+      <ul class="place">
+        <li>
+          <strong>しっかり書けるノートアプリ</strong>
+          主役はプロジェクトやフォルダで、カレンダーはそれを見る補助の機能です。書く前に、置き場所を決める手間があります。
+        </li>
+        <li>
+          <strong>日記アプリ</strong>
+          日付が主役ですが、振り返るための場所として作られていて、アカウントとクラウド保存が前提のものが多くあります。
+        </li>
+        <li>
+          <strong>カレンダーアプリのメモ欄</strong>
+          日付にひもづきますが、たいていは書式のないプレーンテキストです。長い内容を整理するのには向きません。
+        </li>
+      </ul>
+      <p class="marks-after">
+        MemoCalendar は、その真ん中を埋めるつもりで作りました。
+        主役はカレンダーのまま、書くところだけメモアプリと同じにしています。
+      </p>
     </section>
 
     <section class="privacy">
       <div class="wrap">
-        <h2>安心のセキュリティ</h2>
+        <h2>書いたものは、端末から出ません</h2>
         <p class="section-lead">
-          <strong>書いたメモは、あなたの端末から出ません。</strong>
-          このアプリに通信する機能がないからです。
+          体調のことも、人から聞いた話も書く場所です。だから、外に出ていく経路を最初から作っていません。
         </p>
         <ul>
           <li><strong>サーバーがありません。</strong> アカウント登録も要りません</li>
           <li><strong>書いた内容は端末の中だけ</strong>に保存されます。開発者にも見えません</li>
-          <li>利用状況の解析ツールも、広告の仕組みも入っていません</li>
+          <li>利用状況の解析ツールは入っていません</li>
+          <li>
+            無料で続けるために広告を出しています。ただし
+            <strong>あなたが書いた内容が広告に使われることはありません</strong>
+          </li>
           <li>
             バックアップの書き出し先は、あなたが iOS の共有シートで選びます。
             アプリが勝手にどこかへ送ることはありません
+          </li>
+          <li>
+            通信するのは広告を出すときだけです。機内モードでも地下鉄でも、
+            いつもどおり開いて書けます
           </li>
         </ul>
         <p style="margin-top: 1.5rem">
@@ -373,13 +810,52 @@
       </div>
     </section>
 
+    <!--
+      予定・カテゴリ・バックアップは、あると助かるが、これを目当てに入れる機能ではない。
+      主役(メモ)を見せ切ったあとに、まとめて置く。
+    -->
     <section class="wrap">
-      <h2>データのバックアップ</h2>
+      <h2>そのほかにできること</h2>
+      <p class="section-lead">メモが主役ですが、日付のアプリとして必要なぶんは持っています。</p>
+      <div class="row">
+        <div class="row-shot" style="--src: url('screenshots/04-schedule.png'); --y: 16%"></div>
+        <div class="row-text">
+          <h3>予定にも使える</h3>
+          <p>
+            何日かにまたがるメモや、毎日・毎週・毎月・毎年の繰り返しも作れます。毎週なら曜日も選べます。
+            この設定は詳細設定の中にまとめてあるので、ふだん書くときは目に入りません。
+          </p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="row-shot is-short" style="--src: url('screenshots/06-categories.png'); --y: 10%"></div>
+        <div class="row-text">
+          <h3>カテゴリで色分け</h3>
+          <p>
+            仕事・個人・予定など、メモにカテゴリを付けるとカレンダーに色の点が並びます。
+            名前も色も自由に変えられ、いくつでも増やせます。
+          </p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="row-shot is-short" style="--src: url('screenshots/05-settings.png'); --y: 10%"></div>
+        <div class="row-text">
+          <h3>機種変更でも、そのまま移せる</h3>
+          <p>
+            書き出したファイルを読み込めば、書式もカテゴリもそのまま戻ります。
+            .ics 形式を選べば、他のカレンダーアプリともやりとりできます。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap">
+      <h2>できないこと</h2>
       <p class="section-lead">
-        メモは端末の中だけに保存されます。通信しないアプリなので、<strong>端末をまたいだ自動の同期はできません</strong>。
-        iPhone と iPad で同じメモを同時に開きたい、という使い方には向きません。
-        そのかわり、設定画面からいつでもバックアップを書き出せます。
-        ときどき書き出しておけば、端末が変わっても困りません。
+        メモを外に送る仕組みを持たないアプリなので、<strong>端末をまたいだ自動の同期はできません</strong>。
+        iPhone と iPad で同じメモを開きたい、家族と共有したい、という使い方には向きません。
+        足りていない部分というより、「端末から出さない」ことを選んだ結果です。
+        機種変更や万一に備えて、設定画面からいつでもバックアップを書き出せます。
       </p>
     </section>
 
@@ -389,15 +865,107 @@
         <a href="https://github.com/wadashuri/memocalendar">GitHub</a>
         <a href="mailto:slaboratory.info@gmail.com">お問い合わせ</a>
       </div>
-      <div>MemoCalendar — 思いついたら、その日にすぐ。</div>
+      <div>MemoCalendar — カレンダーに、ちゃんとした文章が書ける。</div>
     </footer>
+
     <script>
       // 動きを減らす設定なら、何も動かさない。
       const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+      // --- ヒーローの入力デモ ---
+      // 実際に打つ順番。tool はツールバーのどのボタンが光るか。
+      const SCRIPT = [
+        { kind: 'h1', tool: 'h', text: '打ち合わせメモ' },
+        { kind: 'p', tool: null, text: '次回までに見積もりを出す。' },
+        { kind: 'check', tool: 'check', text: '先方に日程を確認', done: true },
+        { kind: 'check', tool: 'check', text: 'たたき台をつくる' },
+        { kind: 'quote', tool: 'quote', text: '予算は前回と同じ枠で、とのこと' },
+      ];
+      const CLASS_OF = { h1: 'd-h1', p: 'd-p', check: 'd-check', quote: 'd-quote' };
+
+      const stage = document.getElementById('demo');
+      const toolbar = document.getElementById('demo-toolbar');
+
+      function highlight(tool) {
+        toolbar.querySelectorAll('span').forEach((btn) => {
+          btn.classList.toggle('on', btn.dataset.tool === tool);
+        });
+      }
+
+      // 1ブロックぶんの箱を作り、文字を入れる先を返す。
+      function addBlock(step) {
+        const block = document.createElement('div');
+        block.className = CLASS_OF[step.kind];
+        let slot = block;
+        if (step.kind === 'check') {
+          const box = document.createElement('span');
+          box.className = 'box';
+          slot = document.createElement('span');
+          block.append(box, slot);
+        }
+        stage.append(block);
+        return { block, slot };
+      }
+
+      const wait = (ms) => new Promise((done) => setTimeout(done, ms));
+
+      async function type(slot, text, caret) {
+        for (const ch of text) {
+          caret.remove();
+          slot.append(ch);
+          slot.append(caret);
+          // 一定間隔だと機械っぽいので、少しだけ揺らす。
+          await wait(48 + Math.random() * 55);
+        }
+      }
+
+      async function play() {
+        for (;;) {
+          stage.textContent = '';
+          const caret = document.createElement('span');
+          caret.className = 'caret';
+          await wait(700);
+
+          for (const step of SCRIPT) {
+            highlight(step.tool);
+            const { block, slot } = addBlock(step);
+            slot.append(caret);
+            await wait(240);
+            await type(slot, step.text, caret);
+            if (step.done) {
+              await wait(420);
+              block.classList.add('is-done');
+            }
+            await wait(430);
+          }
+
+          caret.remove();
+          highlight(null);
+          // 書き上がった状態をしばらく読ませてから、頭に戻す。
+          await wait(4200);
+        }
+      }
+
+      // 動きを減らす設定のときは、書き上がった状態だけを出す。
+      function showFinished() {
+        stage.textContent = '';
+        for (const step of SCRIPT) {
+          const { block, slot } = addBlock(step);
+          slot.append(step.text);
+          if (step.done) block.classList.add('is-done');
+        }
+        highlight(null);
+      }
+
+      if (still) {
+        showFinished();
+      } else {
+        play();
+      }
+
       // --- スクロールで現れる ---
       const revealTargets = document.querySelectorAll(
-        'section h2, .section-lead, .privacy ul, footer, .row-shot, .row-text',
+        'section h2, .section-lead, .privacy ul, .marks, .marks-after, .place, footer, .row-shot, .row-text, .samples > div',
       );
       revealTargets.forEach((el) => el.classList.add('reveal'));
       if (still || !('IntersectionObserver' in window)) {
@@ -415,7 +983,6 @@
         );
         revealTargets.forEach((el) => revealer.observe(el));
       }
-
     </script>
   </body>
 </html>
