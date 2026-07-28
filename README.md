@@ -1,9 +1,9 @@
-# memocalendar-lp
+# notecalendar-lp
 
-iOS アプリ **MemoCalendar** のランディングページとプライバシーポリシー。
+iOS アプリ **Note Calendar** のランディングページとプライバシーポリシー。
 
-- ランディングページ: https://wadashuri.github.io/memocalendar-lp/
-- プライバシーポリシー: https://wadashuri.github.io/memocalendar-lp/privacy.html
+- ランディングページ: https://wadashuri.github.io/notecalendar-lp/
+- プライバシーポリシー: https://wadashuri.github.io/notecalendar-lp/privacy.html
 
 ## このリポジトリがある理由
 
