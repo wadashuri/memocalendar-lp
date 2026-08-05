@@ -3,16 +3,27 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Note Calendar — カレンダーに、ちゃんとした文章が書ける</title>
+    <title>NoteCalendar — カレンダーに、ちゃんとした文章が書ける</title>
     <meta
       name="description"
-      content="日付をタップして、そのまま書く。見出し・チェックリスト・引用まで使えるエディタが、カレンダーの中にあります。書いたものは端末の中だけに残ります。"
+      content="日付をタップして、そのまま書く。太字・下線・チェックリスト・引用まで使えるエディタが、カレンダーの中にあります。書いたものは端末の中だけに残ります。iPhone 向けに App Store で配信中。"
     />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f3f6fb" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#101216" />
+    <meta property="og:title" content="NoteCalendar — カレンダーに、ちゃんとした文章が書ける" />
+    <meta
+      property="og:description"
+      content="太字・下線・チェックリスト・引用まで使えるエディタが、カレンダーの中に。iPhone 向けに App Store で配信中。"
+    />
+    <meta property="og:image" content="icon.png" />
+    <meta name="twitter:card" content="summary" />
     <link rel="icon" href="icon.png" />
+    <link rel="apple-touch-icon" href="icon.png" />
     <style>
       :root {
         color-scheme: light dark;
         --accent: #3d5a80;
+        --accent-warm: #c9a468;
         --accent-soft: #eef2f8;
         --fg: #1c1e21;
         --muted: #64686e;
@@ -20,6 +31,7 @@
         --panel: #f7f8fa;
         --rule: #e4e7ec;
         --shadow: 0 18px 50px -20px rgb(29 41 61 / 35%);
+        --shadow-lg: 0 30px 70px -25px rgb(29 41 61 / 40%);
         /* 端末画面の中だけは、アプリと同じ見え方(明るい紙)で固定する。 */
         --screen-bg: #ffffff;
         --screen-fg: #2b2b2b;
@@ -29,6 +41,7 @@
       @media (prefers-color-scheme: dark) {
         :root {
           --accent: #8fb0d9;
+          --accent-warm: #e3c290;
           --accent-soft: #1e2833;
           --fg: #e9eaec;
           --muted: #9aa0a8;
@@ -36,6 +49,7 @@
           --panel: #171a1f;
           --rule: #272b32;
           --shadow: 0 18px 50px -20px rgb(0 0 0 / 70%);
+          --shadow-lg: 0 30px 70px -25px rgb(0 0 0 / 75%);
         }
       }
       * {
@@ -43,6 +57,9 @@
       }
       html {
         scroll-behavior: smooth;
+      }
+      :where(section, header)[id] {
+        scroll-margin-top: 4.5rem;
       }
       body {
         margin: 0;
@@ -73,11 +90,22 @@
         padding-right: 1.25rem;
       }
 
+      /* ---- scroll progress ---- */
+      .progress-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 3px;
+        width: 0%;
+        background: linear-gradient(90deg, var(--accent), var(--accent-warm));
+        z-index: 60;
+      }
+
       /* ---- top bar ---- */
       .topbar {
         position: sticky;
         top: 0;
-        z-index: 10;
+        z-index: 50;
         backdrop-filter: saturate(180%) blur(12px);
         background: color-mix(in srgb, var(--bg) 82%, transparent);
         border-bottom: 1px solid var(--rule);
@@ -103,21 +131,211 @@
         height: 28px;
         border-radius: 7px;
       }
+      .topbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 1.1rem;
+      }
       .topbar-link {
         font-size: 0.9rem;
         text-decoration: none;
       }
 
+      /* ---- App Store バッジ(共通コンポーネント) ---- */
+      .apple-mark {
+        width: 24px;
+        height: 24px;
+        flex: none;
+        fill: #fff;
+      }
+      .badge-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.65rem;
+        padding: 0.65rem 1.2rem;
+        border-radius: 14px;
+        background: #0b0b0c;
+        color: #fff;
+        text-decoration: none;
+        border: 1px solid rgb(255 255 255 / 12%);
+        box-shadow: 0 14px 34px -16px rgb(0 0 0 / 55%);
+        transition:
+          transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+          box-shadow 0.28s ease;
+        will-change: transform;
+      }
+      .badge-btn:hover {
+        box-shadow: 0 18px 40px -14px rgb(0 0 0 / 60%);
+      }
+      .badge-text {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.15;
+      }
+      .badge-text small {
+        font-size: 0.66rem;
+        font-weight: 400;
+        opacity: 0.82;
+      }
+      .badge-text strong {
+        font-size: 1.02rem;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+      .badge-btn.is-compact {
+        padding: 0.4rem 0.85rem 0.4rem 0.7rem;
+        border-radius: 10px;
+        gap: 0.4rem;
+      }
+      .badge-btn.is-compact .apple-mark {
+        width: 17px;
+        height: 17px;
+      }
+      .badge-btn.is-compact .badge-text small {
+        display: none;
+      }
+      .badge-btn.is-compact .badge-text strong {
+        font-size: 0.85rem;
+      }
+      .btn-ghost {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.65rem 1.3rem;
+        border-radius: 14px;
+        border: 1px solid var(--rule);
+        color: var(--fg);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition:
+          background 0.2s ease,
+          border-color 0.2s ease,
+          transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .btn-ghost:hover {
+        background: var(--panel);
+        border-color: color-mix(in srgb, var(--accent) 35%, var(--rule));
+      }
+      .cta-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 1.9rem;
+      }
+
+      /* 右下に固定で出す、スクロール中の導線。 */
+      .floating-cta {
+        position: fixed;
+        right: 1.1rem;
+        bottom: 1.1rem;
+        z-index: 55;
+        opacity: 0;
+        transform: translateY(14px) scale(0.96);
+        pointer-events: none;
+        transition:
+          opacity 0.3s ease,
+          transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .floating-cta.is-visible {
+        opacity: 1;
+        transform: none;
+        pointer-events: auto;
+      }
+      @media (max-width: 26rem) {
+        .floating-cta .badge-text small {
+          display: none;
+        }
+      }
+
       /* ---- hero ---- */
       header {
+        position: relative;
+        overflow: hidden;
         padding: 4rem 0 4.5rem;
         background: linear-gradient(180deg, var(--accent-soft), transparent);
+      }
+      /* ふわっと動く光のかたまり。存在感は控えめに。 */
+      .mesh {
+        position: absolute;
+        inset: -10% -10% auto -10%;
+        height: 42rem;
+        pointer-events: none;
+        z-index: 0;
+      }
+      .mesh span {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(60px);
+        opacity: 0.55;
+      }
+      .mesh span:nth-child(1) {
+        top: -6rem;
+        left: 2%;
+        width: 26rem;
+        height: 26rem;
+        background: color-mix(in srgb, var(--accent) 55%, transparent);
+        animation: drift-a 22s ease-in-out infinite;
+      }
+      .mesh span:nth-child(2) {
+        top: 4rem;
+        right: 6%;
+        width: 20rem;
+        height: 20rem;
+        background: color-mix(in srgb, var(--accent-warm) 55%, transparent);
+        animation: drift-b 26s ease-in-out infinite;
+      }
+      .mesh span:nth-child(3) {
+        bottom: -12rem;
+        left: 32%;
+        width: 22rem;
+        height: 22rem;
+        background: color-mix(in srgb, var(--accent) 35%, transparent);
+        animation: drift-a 30s ease-in-out infinite reverse;
+      }
+      @keyframes drift-a {
+        0%,
+        100% {
+          transform: translate(0, 0) scale(1);
+        }
+        50% {
+          transform: translate(3.5%, 4%) scale(1.08);
+        }
+      }
+      @keyframes drift-b {
+        0%,
+        100% {
+          transform: translate(0, 0) scale(1);
+        }
+        50% {
+          transform: translate(-4%, 3%) scale(1.05);
+        }
+      }
+      /* カーソルに合わせてうっすら追従する光。JS が --mx / --my を更新する。 */
+      header::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background: radial-gradient(
+          420px circle at var(--mx, 50%) var(--my, 20%),
+          color-mix(in srgb, var(--accent) 16%, transparent),
+          transparent 70%
+        );
+        opacity: 0;
+        transition: opacity 0.4s ease;
+      }
+      header.has-glow::after {
+        opacity: 1;
       }
       /*
         ファーストビューの主役は「文章が書かれていく画面」なので、広い画面では
         文章と端末を横に並べ、狭い画面では見出しのすぐ下に端末を出す。
       */
       .hero {
+        position: relative;
+        z-index: 1;
         display: grid;
         gap: 2.75rem;
         align-items: center;
@@ -153,7 +371,9 @@
         max-width: 30rem;
       }
       .badge {
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
         margin-top: 1.75rem;
         padding: 0.55rem 1.15rem;
         border: 1px solid var(--rule);
@@ -161,6 +381,24 @@
         background: var(--bg);
         color: var(--muted);
         font-size: 0.9rem;
+      }
+      .badge .apple-mark {
+        width: 15px;
+        height: 15px;
+        fill: var(--muted);
+      }
+
+      .hero-phone-wrap {
+        position: relative;
+      }
+      @keyframes bob {
+        0%,
+        100% {
+          translate: 0 0;
+        }
+        50% {
+          translate: 0 -10px;
+        }
       }
 
       /* ---- 端末の枠(ヒーローのデモと作例で共用) ---- */
@@ -172,6 +410,7 @@
         padding: 10px;
         background: linear-gradient(160deg, #2c3038, #14161a);
         box-shadow: var(--shadow);
+        transition: transform 0.25s ease;
       }
       .phone-screen {
         background: var(--screen-bg);
@@ -235,21 +474,6 @@
       }
 
       /* 本文の書式。アプリの WebView に入れている CSS に合わせる。 */
-      .d-h1 {
-        font-size: 1.2rem;
-        font-weight: 700;
-        line-height: 1.35;
-        margin: 0.7rem 0 0.25rem;
-      }
-      .d-h1:first-child {
-        margin-top: 0.25rem;
-      }
-      .d-h2 {
-        font-size: 1.03rem;
-        font-weight: 700;
-        line-height: 1.4;
-        margin: 0.8rem 0 0.25rem;
-      }
       .d-p {
         margin: 0 0 0.3rem;
       }
@@ -305,6 +529,11 @@
       }
       .d-i {
         font-style: italic;
+      }
+      /* 見出しはないので、区切りは下線+太字で代用する(実機でもこの使い方をする)。 */
+      .d-u {
+        font-weight: 700;
+        text-decoration: underline;
       }
 
       /* ---- ヒーローの入力デモ ---- */
@@ -363,6 +592,58 @@
         color: var(--muted);
       }
 
+      /* ---- 実際の画面(マーケ画像)を横に流すマーキー ---- */
+      .showcase {
+        padding: 3rem 0 4.5rem;
+      }
+      .showcase-head {
+        text-align: center;
+        margin-bottom: 1.75rem;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+      .showcase-marquee {
+        overflow: hidden;
+        mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+        -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+      }
+      .showcase-track {
+        display: flex;
+        width: max-content;
+        gap: 1.5rem;
+        padding: 0.5rem 0;
+        animation: marquee 34s linear infinite;
+      }
+      .showcase-marquee:hover .showcase-track {
+        animation-play-state: paused;
+      }
+      .showcase-card {
+        flex: none;
+        width: 190px;
+        aspect-ratio: 9 / 19.5;
+        border-radius: 26px;
+        background-color: var(--panel);
+        background-image: var(--src);
+        background-repeat: no-repeat;
+        background-size: 100% auto;
+        background-position: 50% var(--y, 0%);
+        border: 1px solid var(--rule);
+        box-shadow: var(--shadow-lg);
+      }
+      @keyframes marquee {
+        from {
+          transform: translateX(0);
+        }
+        to {
+          transform: translateX(-50%);
+        }
+      }
+      @media (max-width: 36rem) {
+        .showcase-card {
+          width: 150px;
+        }
+      }
+
       /* ---- 作例カード ---- */
       .samples {
         display: grid;
@@ -376,6 +657,9 @@
       }
       .samples .phone {
         max-width: 22rem;
+      }
+      .samples > div:hover .phone {
+        transform: translateY(-6px);
       }
       .sample-note {
         margin: 0.85rem auto 0;
@@ -400,11 +684,41 @@
         background: var(--bg);
         color: var(--muted);
         font-size: 0.92rem;
+        transition:
+          border-color 0.2s ease,
+          color 0.2s ease,
+          transform 0.2s ease;
+      }
+      .marks li:hover {
+        border-color: color-mix(in srgb, var(--accent) 45%, var(--rule));
+        color: var(--accent);
+        transform: translateY(-2px);
       }
       .marks-after {
         margin: 1.75rem 0 0;
         color: var(--muted);
         max-width: 38rem;
+      }
+
+      /* ---- スポットライト(実機スクリーンショットを大きく1枚) ---- */
+      .spotlight {
+        padding-top: 0;
+      }
+      .spotlight-shot {
+        max-width: 21rem;
+        margin: 0 auto;
+        transform: rotate(-1.4deg);
+        transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .spotlight-shot:hover {
+        transform: rotate(0deg) translateY(-4px);
+      }
+      .spotlight-caption {
+        margin: 1.1rem auto 0;
+        max-width: 24rem;
+        text-align: center;
+        color: var(--muted);
+        font-size: 0.92rem;
       }
 
       /* ---- showcase(項目ごとに、見せたい部分を切り出したカード) ---- */
@@ -437,6 +751,10 @@
         background-position: 50% var(--y);
         border: 1px solid var(--rule);
         box-shadow: var(--shadow);
+        transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .row-shot:hover {
+        transform: translateY(-6px) rotate(-0.6deg);
       }
       /*
         一覧が短い画面(カテゴリ・設定)は、4/5 のままだと下1/3が余白になる。
@@ -462,6 +780,49 @@
         max-width: 28rem;
       }
 
+      /* ---- 「その日を開く」レイヤー演出(カレンダー→日付シートを重ねる) ---- */
+      .stack {
+        position: relative;
+        width: min(19rem, 82vw);
+        height: 25rem;
+        margin: 0 auto;
+      }
+      .stack-card {
+        position: absolute;
+        width: 78%;
+        aspect-ratio: 4 / 5;
+        border-radius: 20px;
+        background-color: var(--panel);
+        background-repeat: no-repeat;
+        background-size: 100% auto;
+        border: 1px solid var(--rule);
+        box-shadow: var(--shadow-lg);
+        transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .stack-card.is-back {
+        top: 0;
+        right: 0;
+        background-image: var(--src2);
+        background-position: 50% var(--y2);
+        transform: rotate(7deg);
+        opacity: 0.92;
+      }
+      .stack-card.is-front {
+        left: 0;
+        bottom: 0;
+        background-image: var(--src1);
+        background-position: 50% var(--y1);
+        transform: rotate(-6deg);
+      }
+      .stack:hover .stack-card {
+        transform: rotate(0deg);
+      }
+      @media (min-width: 52rem) {
+        .stack {
+          justify-self: center;
+        }
+      }
+
       /* ---- 立ち位置 ---- */
       .place {
         margin: 0;
@@ -475,6 +836,10 @@
         padding-left: 1.1rem;
         border-left: 3px solid var(--rule);
         color: var(--muted);
+        transition: border-color 0.3s ease;
+      }
+      .place li:hover {
+        border-color: var(--accent);
       }
       .place strong {
         display: block;
@@ -494,6 +859,31 @@
         opacity: 1;
         transform: none;
       }
+      /* 同じ親の中で並ぶ要素は、少しずつ遅れて出す。 */
+      .reveal:nth-child(2) {
+        transition-delay: 70ms;
+      }
+      .reveal:nth-child(3) {
+        transition-delay: 140ms;
+      }
+      .reveal:nth-child(4) {
+        transition-delay: 210ms;
+      }
+      .reveal:nth-child(5) {
+        transition-delay: 280ms;
+      }
+      .reveal:nth-child(6) {
+        transition-delay: 350ms;
+      }
+      .reveal:nth-child(7) {
+        transition-delay: 420ms;
+      }
+      .reveal:nth-child(8) {
+        transition-delay: 490ms;
+      }
+      .reveal:nth-child(9) {
+        transition-delay: 560ms;
+      }
 
       @media (prefers-reduced-motion: reduce) {
         html {
@@ -505,6 +895,13 @@
           transform: none;
         }
         .caret {
+          animation: none;
+        }
+        .mesh span,
+        .hero-chip {
+          animation: none;
+        }
+        .showcase-track {
           animation: none;
         }
       }
@@ -553,6 +950,24 @@
         color: var(--muted);
         font-size: 0.9rem;
       }
+      .footer-cta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 1.25rem;
+        padding: 2rem;
+        margin-bottom: 2.5rem;
+        border-radius: 22px;
+        background: var(--panel);
+        border: 1px solid var(--rule);
+      }
+      .footer-cta p {
+        margin: 0;
+        flex: 1;
+        min-width: 14rem;
+        color: var(--fg);
+        font-size: 1.02rem;
+      }
       .links {
         display: flex;
         flex-wrap: wrap;
@@ -562,29 +977,71 @@
     </style>
   </head>
   <body>
+    <!-- 各所で使い回す Apple マークのシンボル。 -->
+    <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+      <symbol id="apple-mark" viewBox="0 0 24 24">
+        <path
+          d="M16.365 1.43c0 1.14-.493 2.27-1.177 3.08-.744.9-1.99 1.57-2.987 1.57-.12 0-.23-.02-.3-.03-.01-.06-.04-.22-.04-.39 0-1.15.572-2.27 1.206-2.98.804-.94 2.142-1.64 3.248-1.68.03.13.05.28.05.43zm4.565 15.71c-.03.07-.463 1.58-1.518 3.12-.945 1.34-1.94 2.71-3.43 2.71-1.517 0-1.9-.88-3.63-.88-1.698 0-2.302.91-3.67.91-1.377 0-2.332-1.26-3.428-2.8-1.287-1.82-2.323-4.63-2.323-7.28 0-4.28 2.797-6.55 5.552-6.55 1.448 0 2.652.95 3.559.95.865 0 2.221-1.01 3.873-1.01.63 0 2.851.06 4.311 2.15-.112.07-2.58 1.51-2.58 4.61 0 3.71 3.24 4.98 3.284 5.02z"
+        />
+      </symbol>
+    </svg>
+
+    <div class="progress-bar" id="progress-bar" aria-hidden="true"></div>
+
     <nav class="topbar">
       <div class="wrap topbar-inner">
         <a class="brand" href="#top">
           <img src="icon.png" alt="" />
-          <span>Note Calendar</span>
+          <span>NoteCalendar</span>
         </a>
-        <a class="topbar-link" href="privacy.html">プライバシー</a>
+        <div class="topbar-actions">
+          <a class="topbar-link" href="privacy.html">プライバシー</a>
+          <a
+            class="badge-btn is-compact magnetic"
+            href="https://apps.apple.com/us/app/notecalendar/id6795499001"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="App Store で NoteCalendar を入手"
+          >
+            <svg class="apple-mark" aria-hidden="true"><use href="#apple-mark"></use></svg>
+            <span class="badge-text"><strong>入手する</strong></span>
+          </a>
+        </div>
       </div>
     </nav>
 
     <header id="top">
+      <div class="mesh" aria-hidden="true"><span></span><span></span><span></span></div>
       <div class="wrap hero">
         <div>
-          <img class="hero-icon" src="icon.png" alt="Note Calendar のアイコン" />
+          <img class="hero-icon" src="icon.png" alt="NoteCalendar のアイコン" />
           <h1>カレンダーに、<br />ちゃんとした文章が書ける。</h1>
           <p class="tagline">
-            見出しで区切る。チェックリストを並べる。相手の言葉を引用で残す。
+            太字で強調する。チェックリストを並べる。相手の言葉を引用で残す。
             カレンダー系のアプリにありがちな「一言メモ欄」ではなく、ノートアプリと同じ書き心地です。
           </p>
           <p class="hero-note">
             日付をタップして、そのまま書くだけ。保存ボタンもフォルダ分けもありません。
           </p>
-          <span class="badge">iPhone 向け・近日公開</span>
+
+          <div class="cta-row">
+            <a
+              class="badge-btn magnetic"
+              href="https://apps.apple.com/us/app/notecalendar/id6795499001"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="App Store で NoteCalendar を入手"
+            >
+              <svg class="apple-mark" aria-hidden="true"><use href="#apple-mark"></use></svg>
+              <span class="badge-text"><small>App Store で</small><strong>ダウンロード</strong></span>
+            </a>
+            <a class="btn-ghost magnetic" href="#feel">できることを見る ↓</a>
+          </div>
+
+          <span class="badge">
+            <svg class="apple-mark" aria-hidden="true"><use href="#apple-mark"></use></svg>
+            iPhone 向け・App Store で配信中
+          </span>
         </div>
 
         <!--
@@ -592,8 +1049,8 @@
           実際に打つ順番どおりに、書式が切り替わりながら文章が増えていく。
           画面録画ができたら、この中身を <video> に差し替える。
         -->
-        <div>
-          <div class="phone">
+        <div class="hero-phone-wrap">
+          <div class="phone" id="hero-phone">
             <div class="phone-screen">
               <div class="screen-bar">
                 <span class="back">‹</span>
@@ -603,7 +1060,6 @@
               </div>
               <div class="screen-body demo-stage" id="demo" aria-hidden="true"></div>
               <div class="demo-toolbar" id="demo-toolbar" aria-hidden="true">
-                <span data-tool="h">見出し</span>
                 <span data-tool="b">太字</span>
                 <span data-tool="list">箇条書き</span>
                 <span data-tool="check">チェック</span>
@@ -616,13 +1072,88 @@
       </div>
     </header>
 
+    <!-- 実際に配信中の App Store 用画像を、そのまま横に流して見せる。 -->
+    <section class="showcase">
+      <p class="showcase-head reveal">実際の画面です</p>
+      <div class="showcase-marquee">
+        <div class="showcase-track" id="showcase-track">
+          <div
+            class="showcase-card"
+            role="img"
+            aria-label="カレンダー画面"
+            style="--src: url('screenshots/01-calendar.png'); --y: 0%"
+          ></div>
+          <div
+            class="showcase-card"
+            role="img"
+            aria-label="その日のノート一覧"
+            style="--src: url('screenshots/02-day-sheet.png'); --y: 46%"
+          ></div>
+          <div
+            class="showcase-card"
+            role="img"
+            aria-label="リッチテキストの編集画面"
+            style="--src: url('screenshots/03-richtext.png'); --y: 8%"
+          ></div>
+          <div
+            class="showcase-card"
+            role="img"
+            aria-label="繰り返し予定の詳細設定"
+            style="--src: url('screenshots/04-schedule.png'); --y: 6%"
+          ></div>
+          <div
+            class="showcase-card"
+            role="img"
+            aria-label="カテゴリ設定画面"
+            style="--src: url('screenshots/06-categories.png'); --y: 6%"
+          ></div>
+          <div
+            class="showcase-card"
+            role="img"
+            aria-label="データ管理・バックアップ画面"
+            style="--src: url('screenshots/05-settings.png'); --y: 6%"
+          ></div>
+          <div
+            class="showcase-card"
+            aria-hidden="true"
+            style="--src: url('screenshots/01-calendar.png'); --y: 0%"
+          ></div>
+          <div
+            class="showcase-card"
+            aria-hidden="true"
+            style="--src: url('screenshots/02-day-sheet.png'); --y: 46%"
+          ></div>
+          <div
+            class="showcase-card"
+            aria-hidden="true"
+            style="--src: url('screenshots/03-richtext.png'); --y: 8%"
+          ></div>
+          <div
+            class="showcase-card"
+            aria-hidden="true"
+            style="--src: url('screenshots/04-schedule.png'); --y: 6%"
+          ></div>
+          <div
+            class="showcase-card"
+            aria-hidden="true"
+            style="--src: url('screenshots/06-categories.png'); --y: 6%"
+          ></div>
+          <div
+            class="showcase-card"
+            aria-hidden="true"
+            style="--src: url('screenshots/05-settings.png'); --y: 6%"
+          ></div>
+        </div>
+      </div>
+    </section>
+
     <!--
       ヒーローで「書ける」と言い切ったので、次はその中身。
       画面写真だと文字が小さくて読めないため、書式そのものをHTMLで組んで
       実物大の書き味を見せる。
     -->
-    <section class="wrap">
-      <h2>「メモ欄」ではなく、ノートアプリです</h2>
+    <section class="wrap" id="feel">
+      <h2>「メモ欄」ではなく、ノート機能が付いたカレンダーです</h2>
       <p class="section-lead">
         日付ごとのアプリでは、書けるのが一行の予定名だけ、ということが少なくありません。
         このアプリでは、その日のページがそのままノート帳になります。実際の見え方はこんな具合です。
@@ -638,7 +1169,7 @@
                 <span class="cat is-work">仕事</span>
               </div>
               <div class="screen-body">
-                <div class="d-h1">打ち合わせノート</div>
+                <div class="d-p">打ち合わせノート</div>
                 <div class="d-p">次回までに見積もりを出す。</div>
                 <div class="d-check is-done">
                   <span class="box"></span><span>先方に日程を確認</span>
@@ -663,12 +1194,12 @@
                 <span class="cat is-private">旅行</span>
               </div>
               <div class="screen-body">
-                <div class="d-h1">京都 1日目</div>
-                <div class="d-h2">持ち物</div>
+                <div class="d-p">京都 1日目</div>
+                <div class="d-u">持ち物</div>
                 <div class="d-check is-done"><span class="box"></span><span>充電器</span></div>
                 <div class="d-check is-done"><span class="box"></span><span>常備薬</span></div>
                 <div class="d-check"><span class="box"></span><span>折りたたみ傘</span></div>
-                <div class="d-h2">まわる順</div>
+                <div class="d-u">まわる順</div>
                 <ul class="d-ul">
                   <li>10:00 ホテルに荷物を預ける</li>
                   <li>11:30 昼ごはん(<span class="d-b">要予約</span>)</li>
@@ -678,7 +1209,7 @@
             </div>
           </div>
           <p class="sample-note">
-            見出しで「持ち物」と「まわる順」を分ける。当日はチェックを付けながら進めます。
+            下線で「持ち物」と「まわる順」を分ける。当日はチェックを付けながら進めます。
           </p>
         </div>
 
@@ -691,10 +1222,10 @@
                 <span class="cat is-life">通院</span>
               </div>
               <div class="screen-body">
-                <div class="d-h1">内科</div>
+                <div class="d-p">内科</div>
                 <div class="d-p">朝から 37.8℃。喉の痛みは昨日より軽い。</div>
                 <div class="d-quote">水分をとって、熱が下がっても2日は様子を見ること</div>
-                <div class="d-h2">処方</div>
+                <div class="d-u">処方</div>
                 <ul class="d-ul">
                   <li>解熱剤 5日分</li>
                   <li>うがい薬</li>
@@ -716,7 +1247,6 @@
         文章を組み立てるのに要るものだけを入れています。多すぎて迷う、ということがない範囲です。
       </p>
       <ul class="marks">
-        <li>見出し(大・中・小)</li>
         <li>太字</li>
         <li>斜体</li>
         <li>下線</li>
@@ -732,6 +1262,19 @@
       </p>
     </section>
 
+    <!-- 上の一覧が絵空事でないことを、実機のスクリーンショットで裏付ける。 -->
+    <section class="wrap spotlight">
+      <div
+        class="row-shot spotlight-shot reveal"
+        role="img"
+        aria-label="実機での編集画面。チェックリスト・引用・下線・番号付きリストが並んでいる"
+        style="--src: url('screenshots/03-richtext.png'); --y: 8%"
+      ></div>
+      <p class="spotlight-caption reveal">
+        これは加工なしの実機画面です。チェックリスト・引用・下線・番号付きリストが、下書きなしでこのまま並びます。
+      </p>
+    </section>
+
     <section class="wrap">
       <h2>開いた瞬間から、書ける</h2>
       <p class="section-lead">
@@ -740,7 +1283,18 @@
         入力が止まると自動で保存されるので、保存ボタンもありません。
       </p>
       <div class="row">
-        <div class="row-shot" style="--src: url('screenshots/01-calendar.png'); --y: 24%"></div>
+        <div
+          class="stack reveal"
+          style="
+            --src1: url('screenshots/02-day-sheet.png');
+            --y1: 58%;
+            --src2: url('screenshots/01-calendar.png');
+            --y2: 20%;
+          "
+        >
+          <div class="stack-card is-back"></div>
+          <div class="stack-card is-front"></div>
+        </div>
         <div class="row-text">
           <h3>探す場所は、いつも日付</h3>
           <p>
@@ -776,7 +1330,7 @@
         </li>
       </ul>
       <p class="marks-after">
-        Note Calendar は、その真ん中を埋めるつもりで作りました。
+        NoteCalendar は、その真ん中を埋めるつもりで作りました。
         主役はカレンダーのまま、書くところだけノートアプリと同じにしています。
       </p>
     </section>
@@ -818,7 +1372,7 @@
       <h2>そのほかにできること</h2>
       <p class="section-lead">ノートが主役ですが、日付のアプリとして必要なぶんは持っています。</p>
       <div class="row">
-        <div class="row-shot" style="--src: url('screenshots/04-schedule.png'); --y: 16%"></div>
+        <div class="row-shot reveal" style="--src: url('screenshots/04-schedule.png'); --y: 16%"></div>
         <div class="row-text">
           <h3>予定にも使える</h3>
           <p>
@@ -828,7 +1382,10 @@
         </div>
       </div>
       <div class="row">
-        <div class="row-shot is-short" style="--src: url('screenshots/06-categories.png'); --y: 10%"></div>
+        <div
+          class="row-shot is-short reveal"
+          style="--src: url('screenshots/06-categories.png'); --y: 10%"
+        ></div>
         <div class="row-text">
           <h3>カテゴリで色分け</h3>
           <p>
@@ -838,7 +1395,10 @@
         </div>
       </div>
       <div class="row">
-        <div class="row-shot is-short" style="--src: url('screenshots/05-settings.png'); --y: 10%"></div>
+        <div
+          class="row-shot is-short reveal"
+          style="--src: url('screenshots/05-settings.png'); --y: 10%"
+        ></div>
         <div class="row-text">
           <h3>機種変更でも、そのまま移せる</h3>
           <p>
@@ -860,28 +1420,54 @@
     </section>
 
     <footer class="wrap">
+      <div class="footer-cta">
+        <p>日付をタップして、そのまま書く。今日からはじめられます。</p>
+        <a
+          class="badge-btn magnetic"
+          href="https://apps.apple.com/us/app/notecalendar/id6795499001"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="App Store で NoteCalendar を入手"
+        >
+          <svg class="apple-mark" aria-hidden="true"><use href="#apple-mark"></use></svg>
+          <span class="badge-text"><small>App Store で</small><strong>ダウンロード</strong></span>
+        </a>
+      </div>
       <div class="links">
         <a href="privacy.html">プライバシーポリシー</a>
         <a href="https://github.com/wadashuri/notecalendar">GitHub</a>
         <a href="mailto:slaboratory.info@gmail.com">お問い合わせ</a>
       </div>
-      <div>Note Calendar — カレンダーに、ちゃんとした文章が書ける。</div>
+      <div>NoteCalendar — カレンダーに、ちゃんとした文章が書ける。</div>
     </footer>
+
+    <a
+      class="badge-btn floating-cta magnetic"
+      id="floating-cta"
+      href="https://apps.apple.com/us/app/notecalendar/id6795499001"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="App Store で NoteCalendar を入手"
+    >
+      <svg class="apple-mark" aria-hidden="true"><use href="#apple-mark"></use></svg>
+      <span class="badge-text"><small>App Store で</small><strong>ダウンロード</strong></span>
+    </a>
 
     <script>
       // 動きを減らす設定なら、何も動かさない。
       const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const pointerFine = window.matchMedia('(pointer: fine)').matches;
 
       // --- ヒーローの入力デモ ---
       // 実際に打つ順番。tool はツールバーのどのボタンが光るか。
       const SCRIPT = [
-        { kind: 'h1', tool: 'h', text: '打ち合わせノート' },
+        { kind: 'bold', tool: 'b', text: '打ち合わせノート' },
         { kind: 'p', tool: null, text: '次回までに見積もりを出す。' },
         { kind: 'check', tool: 'check', text: '先方に日程を確認', done: true },
         { kind: 'check', tool: 'check', text: 'たたき台をつくる' },
         { kind: 'quote', tool: 'quote', text: '予算は前回と同じ枠で、とのこと' },
       ];
-      const CLASS_OF = { h1: 'd-h1', p: 'd-p', check: 'd-check', quote: 'd-quote' };
+      const CLASS_OF = { bold: 'd-p', p: 'd-p', check: 'd-check', quote: 'd-quote' };
 
       const stage = document.getElementById('demo');
       const toolbar = document.getElementById('demo-toolbar');
@@ -902,6 +1488,10 @@
           box.className = 'box';
           slot = document.createElement('span');
           block.append(box, slot);
+        } else if (step.kind === 'bold') {
+          slot = document.createElement('span');
+          slot.className = 'd-b';
+          block.append(slot);
         }
         stage.append(block);
         return { block, slot };
@@ -965,7 +1555,7 @@
 
       // --- スクロールで現れる ---
       const revealTargets = document.querySelectorAll(
-        'section h2, .section-lead, .privacy ul, .marks, .marks-after, .place, footer, .row-shot, .row-text, .samples > div',
+        'section h2, .section-lead, .privacy ul, .marks, .marks-after, .place, footer, .row-shot, .row-text, .samples > div, .stack, .spotlight-shot, .spotlight-caption, .showcase-head',
       );
       revealTargets.forEach((el) => el.classList.add('reveal'));
       if (still || !('IntersectionObserver' in window)) {
@@ -982,6 +1572,67 @@
           { rootMargin: '0px 0px -12% 0px' },
         );
         revealTargets.forEach((el) => revealer.observe(el));
+      }
+
+      // --- 上部の読み進み具合バー ---
+      const progressBar = document.getElementById('progress-bar');
+      function updateProgress() {
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        const pct = max > 0 ? (window.scrollY / max) * 100 : 0;
+        progressBar.style.width = pct + '%';
+      }
+      document.addEventListener('scroll', updateProgress, { passive: true });
+      updateProgress();
+
+      // --- ヒーローを過ぎたら、右下に固定のダウンロード導線を出す ---
+      const floatingCta = document.getElementById('floating-cta');
+      const heroEl = document.getElementById('top');
+      if ('IntersectionObserver' in window) {
+        const heroWatcher = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              floatingCta.classList.toggle('is-visible', !entry.isIntersecting);
+            });
+          },
+          { rootMargin: '-70% 0px 0px 0px' },
+        );
+        heroWatcher.observe(heroEl);
+      }
+
+      // --- ポインタが使える端末だけ: 端末モックの立体的な追従 ---
+      if (pointerFine && !still) {
+        const phone = document.getElementById('hero-phone');
+        heroEl.classList.add('has-glow');
+        heroEl.addEventListener('mousemove', (e) => {
+          const rect = heroEl.getBoundingClientRect();
+          const mx = ((e.clientX - rect.left) / rect.width) * 100;
+          const my = ((e.clientY - rect.top) / rect.height) * 100;
+          heroEl.style.setProperty('--mx', mx + '%');
+          heroEl.style.setProperty('--my', my + '%');
+
+          const pr = phone.getBoundingClientRect();
+          const px = (e.clientX - (pr.left + pr.width / 2)) / (pr.width / 2);
+          const py = (e.clientY - (pr.top + pr.height / 2)) / (pr.height / 2);
+          const clampedX = Math.max(-1, Math.min(1, px));
+          const clampedY = Math.max(-1, Math.min(1, py));
+          phone.style.transform = `perspective(900px) rotateY(${clampedX * 7}deg) rotateX(${-clampedY * 7}deg)`;
+        });
+        heroEl.addEventListener('mouseleave', () => {
+          phone.style.transform = '';
+        });
+
+        // --- マグネットボタン: カーソルにわずかに引き寄せられる ---
+        document.querySelectorAll('.magnetic').forEach((el) => {
+          el.addEventListener('mousemove', (e) => {
+            const rect = el.getBoundingClientRect();
+            const dx = e.clientX - (rect.left + rect.width / 2);
+            const dy = e.clientY - (rect.top + rect.height / 2);
+            el.style.transform = `translate(${dx * 0.18}px, ${dy * 0.28}px)`;
+          });
+          el.addEventListener('mouseleave', () => {
+            el.style.transform = '';
+          });
+        });
       }
     </script>
   </body>
